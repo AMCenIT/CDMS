@@ -135,7 +135,19 @@
                   <q-item-label>Analytics</q-item-label>
                 </q-item-section>
               </q-item>
-              <q-separator class="q-mt-md q-mb-lg" />
+
+              <q-item
+                v-ripple
+                clickable
+                @click="$router.push('/MainLayout/Home')"
+              >
+                <q-item-section avatar>
+                  <q-icon color="grey" name="summarize" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Analytics</q-item-label>
+                </q-item-section>
+              </q-item>
             </q-expansion-item>
           </q-expansion>
         </q-list>
@@ -144,6 +156,7 @@
 
     <q-page-container>
       <router-view class="q-pa-md" />
+
       <div class="my-card text-black q-pa-md">
         <!-- <h6>Description of the System</h6> -->
         <p hidden>{{ background }}</p>

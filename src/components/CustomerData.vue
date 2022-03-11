@@ -19,7 +19,7 @@
       icon="remove_red_eye"
       flat
       class="q-pa-md"
-      @click="viewCustomer"
+      @click="viewCustomer(customer)"
       dense
     />
     <q-btn
@@ -29,7 +29,7 @@
       color="grey"
       icon="delete"
       class="q-pa-md"
-      @click="deleteCustomer"
+      @click="deleteCustomer(customer)"
       flat
       dense
     />
@@ -39,7 +39,9 @@
           <h4 class="text-uppercase q-pa-sm">
             {{ customer.contactPerson }}
           </h4>
-          <label align="right"> <b>Account Type:</b> {{ customer.type }}</label>
+          <label align="right">
+            <b>Account Type:</b> {{ customer.type.attributes.label }}</label
+          >
         </q-card-section>
 
         <q-item>
@@ -54,7 +56,7 @@
         >
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Industry: </b> {{ customer.industry }}
+            <b>Industry: </b> {{ customer.industry.attributes.label }}
           </div></q-item
         >
         <q-item>
@@ -87,117 +89,138 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editCustomerModal" persistent>
-      <q-card style="width: 500px">
-        <q-card-section class="bg-primary text-white">
-          <div class="text-h6">Edit Customer Information</div>
-        </q-card-section>
-        <q-card-section padding>
-          <q-input
-            color="black"
-            v-model="fullname"
-            label="Last Name"
-            outlined
-            dense
-            square
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please input last name',
-            ]"
-          />
-          <q-input
-            color="black"
-            v-model="company_name"
-            label="Company"
-            outlined
-            dense
-            square
-            lazy-rules
-            :rules="[
-              (val) => (val && val.length > 0) || 'Please input company name',
-            ]"
-          />
+    <q-dialog v-model="editCustomerModal">
+      <div v-if="editCustomerModal">
+        <!-- {{ rowsCustomer }} -->
+        <q-form
+          ref="customerForm"
+          @submit="onSubmitUpdateCustomer"
+          @reset="onReset"
+        >
+          <q-card style="width: 500px">
+            <q-card-section class="bg-primary text-white">
+              <div class="text-h6">Add New Customer</div>
+            </q-card-section>
+            <q-card-section padding>
+              <q-input
+                color="black"
+                v-model="fullname"
+                label="Name"
+                outlined
+                dense
+                square
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please input first name',
+                ]"
+              />
 
-          <q-input
-            color="black"
-            v-model="address"
-            label="Address"
-            outlined
-            dense
-            square
-            lazy-rules
-            :rules="[(val) => (val && val.length > 0) || 'Please input street']"
-          />
+              <q-input
+                color="black"
+                v-model="company_name"
+                label="Company"
+                outlined
+                dense
+                square
+                lazy-rules
+                :rules="[
+                  (val) =>
+                    (val && val.length > 0) || 'Please input company name',
+                ]"
+              />
 
-          <q-input
-            color="black"
-            v-model="tel_mobile"
-            label="Tel/Mobile"
-            outlined
-            dense
-            square
-            lazy-rules
-            :rules="[
-              (val) =>
-                (val && val.length == 11) || 'Please enter 11 digits number',
-            ]"
-          />
+              <q-input
+                color="black"
+                v-model="address"
+                label="Address"
+                outlined
+                dense
+                square
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please type Address',
+                ]"
+              />
+              <q-input
+                color="black"
+                v-model="tel_mobile"
+                label="Contact Number"
+                outlined
+                dense
+                square
+                lazy-rules
+                :rules="[
+                  (val) =>
+                    (val && val.length == 11) ||
+                    'Please enter 11 digits number',
+                ]"
+              />
 
-          <q-input
-            color="black"
-            v-model="email"
-            label="Email"
-            outlined
-            dense
-            type="email"
-            square
-            lazy-rules
-            :rules="[(val) => !!val || 'Please enter a valid email address']"
-          />
+              <q-input
+                color="black"
+                v-model="email"
+                label="Email"
+                outlined
+                dense
+                type="email"
+                square
+                lazy-rules
+                :rules="[
+                  (val) => !!val || 'Please enter a valid email address',
+                ]"
+              />
 
-          <q-select
-            label="Industry"
-            transition-show="flip-up"
-            transition-hide="flip-down"
-            outlined
-            dense
-            square
-            v-model="industry"
-            :options="industry_options"
-          />
-          <br />
-          <q-select
-            outlined
-            dense
-            square
-            transition-show="flip-up"
-            transition-hide="flip-down"
-            v-model="type"
-            :options="type_options"
-            option-label="label"
-            label="Acoount Type"
-            emit-value
-            map-options
-          />
-        </q-card-section>
+              <q-select
+                label="Industry"
+                transition-show="flip-up"
+                transition-hide="flip-down"
+                outlined
+                dense
+                square
+                v-model="industry"
+                :options="industry_options"
+                lazy-rules
+                option-label="label"
+                :rules="[(val) => !!val || 'Please enter industry']"
+              />
+              <br />
+              <q-select
+                label="Account Type"
+                outlined
+                dense
+                square
+                option-label="label"
+                transition-show="flip-up"
+                transition-hide="flip-down"
+                v-model="type"
+                :options="type_options"
+                emit-value
+                map-options
+                lazy-rules
+                :rules="[(val) => !!val || 'Please enter account type']"
+              />
+            </q-card-section>
 
-        <q-card-actions align="right" class="bg-white text-black row">
-          <q-btn
-            color="grey"
-            label="Cancel"
-            v-close-popup
-            class="col"
-            unelevated
-          />
-          <q-btn
-            unelevated
-            color="primary"
-            label="Save"
-            class="col"
-            @click="onSubmit"
-          />
-        </q-card-actions>
-      </q-card>
+            <q-card-actions align="right" class="bg-white text-black row">
+              <q-btn
+                color="grey"
+                label="Cancel"
+                type="reset"
+                v-close-popup
+                class="col"
+                unelevated
+              />
+              <q-btn
+                unelevated
+                color="primary"
+                type="submit"
+                label="Save"
+                class="col"
+              />
+            </q-card-actions>
+          </q-card>
+        </q-form>
+      </div>
     </q-dialog>
 
     <q-dialog v-model="deleteCustomerModal" persistent>
@@ -205,13 +228,19 @@
         <q-card-section class="row items-center">
           <q-avatar icon="delete" color="negative" text-color="white" />
           <span class="q-ml-sm"
-            >Are you sure you want to delete this customer?</span
+            >Are you sure you want to delete {{ customer.contactPerson }}?</span
           >
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="grey" v-close-popup />
-          <q-btn flat label="Delete" color="negative" v-close-popup />
+          <q-btn
+            flat
+            label="Delete"
+            color="negative"
+            @click="confirmed"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -219,7 +248,13 @@
 </template>
 <script>
 import { ref, onMounted } from "vue";
-import { getAllType, getIndutries, postCustomerData } from "src/provider.js";
+import {
+  getAllType,
+  getIndutries,
+  populateAllIndutries,
+  deleteCustomerData,
+  editCustomerData,
+} from "src/provider.js";
 import { useQuasar } from "quasar";
 
 export default {
@@ -228,7 +263,6 @@ export default {
     const editCustomerModal = ref(false);
     const viewCustomerModal = ref(false);
     const deleteCustomerModal = ref(false);
-
     const customerInfo = ref([]);
 
     // types
@@ -240,23 +274,28 @@ export default {
     const industry_options = ref([]);
 
     // edit Data
+    const editId = ref(null);
+    const customerForm = ref(null);
     const fullname = ref("");
     const company_name = ref("");
-    const type = ref(null);
     const address = ref("");
-    // const region = ref("");
-    // const province = ref("");
-    // const city_municipality = ref("");
-    // const street = ref("");
-    // const barangay = ref("");
     const tel_mobile = ref("");
     const email = ref("");
+
+    // industries
     const industry = ref(null);
+
+    // types
+    const type = ref(null);
 
     const $q = useQuasar();
 
+    // delete Data
+    const deleteId = ref(null);
+
     async function onSubmit() {
       console.log("edit");
+      editCustomerModal.value = false;
     }
 
     function editCustomer(props) {
@@ -265,19 +304,78 @@ export default {
       address.value = props.address;
       tel_mobile.value = props.contactNo;
       email.value = props.email;
-      industry.value = props.industry;
-      type.value = props.type;
+      industry.value = {
+        id: props.industry.id,
+        label: props.industry.attributes.label,
+      };
+      type.value = {
+        id: props.type.id,
+        label: props.type.attributes.label,
+      };
       editCustomerModal.value = true;
+      editId.value = props.id;
+    }
+
+    async function onSubmitUpdateCustomer() {
+      const data = {
+        data: {
+          displayName: "",
+          contactPerson: "",
+          email: "",
+          contactNo: "",
+          region: "",
+          address: "",
+          type: {},
+          industry: {},
+        },
+      };
+      customerForm.value.validate().then((success) => {
+        if (success) {
+          data.data.displayName = company_name.value;
+          data.data.contactPerson = fullname.value;
+          data.data.email = email.value;
+          data.data.contactNo = tel_mobile.value;
+          data.data.address = address.value;
+          data.data.type = type.value;
+          data.data.industry = industry.value;
+          editCustomerData(editId.value, data);
+          console.log("industry", data.data.industry.label);
+          editCustomerModal.value = false;
+          onReset();
+          $q.notify({
+            color: "green-4",
+            textColor: "white",
+            icon: "cloud_done",
+            message: "Customer Data updated",
+          });
+        } else {
+          $q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: "Please check the fields.",
+          });
+        }
+      });
+    }
+
+    function deleteCustomer(props) {
+      deleteId.value = props.id;
+      deleteCustomerModal.value = true;
+    }
+    function confirmed() {
+      deleteCustomerData(deleteId.value);
+      $q.notify({
+        color: "negative",
+        textColor: "white",
+        icon: "delete",
+        message: "You have successfully deleted the customer data",
+      });
     }
 
     function viewCustomer() {
       console.log("view");
       viewCustomerModal.value = true;
-    }
-
-    function deleteCustomer() {
-      console.log("delete");
-      deleteCustomerModal.value = true;
     }
 
     async function getTypes() {
@@ -303,18 +401,29 @@ export default {
         return industry_options.value;
       });
     }
+    async function onReset() {
+      editCustomerModal.value = false;
+    }
 
     onMounted(() => {
       getTypes();
       getSectors();
+      // populateIndustries();
     });
 
     return {
+      viewCustomer,
+      onReset,
+      deleteCustomer,
+      onSubmitUpdateCustomer,
+      editCustomer,
+      onSubmit,
+      confirmed,
+      customerForm,
       types,
       type_options,
       industry_options,
       customerInfo,
-      viewCustomer,
       viewCustomerModal,
       fullname,
       company_name,
@@ -324,10 +433,8 @@ export default {
       industry,
       address,
       editCustomerModal,
-      editCustomer,
-      onSubmit,
       deleteCustomerModal,
-      deleteCustomer,
+      editId,
     };
   },
 };

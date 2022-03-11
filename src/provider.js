@@ -2,22 +2,39 @@ import { api } from "boot/axios";
 
 const getCustomerData = function () {
   return api
-    .get("/api/customers/?populate=industry&populate=type&populate=type")
-    .then(function (customers) {
-      return customers.data.data;
-    });
-};
-const populateindustry = function () {
-  return api
-    .get("/api/customers/?populate=industry")
+    .get("api/customers/?populate=industry&populate=type")
     .then(function (customers) {
       return customers.data.data;
     });
 };
 
+// add
 const postCustomerDataApi = async function (customer) {
   await api.post("/api/customers", customer).then((res) => {
     console.log("post data", res.data);
+  });
+};
+
+// delete
+
+const deleteCustomer = async function (id) {
+  let errorMessage = "";
+  await api
+    .delete("/api/customers/" + id)
+    .then((res) => {
+      console.log("deleted question", res);
+    })
+    .catch((error) => {
+      console.error("There was an error!", error);
+    });
+  console.log(id);
+};
+
+const editCustomer = async function (id, customer) {
+  let errorMessage = "";
+  console.log("customer edit", customer);
+  await api.put("api/customers/" + id, customer).then((res) => {
+    console.log(res);
   });
 };
 
@@ -48,14 +65,17 @@ export const getAllCustomerData = () => {
   return getCustomerData();
 };
 
-export const populateAllIndutries = () => {
-  return populateindustry();
-};
-
 export const postCustomerData = (customer) => {
   return postCustomerDataApi(customer);
 };
 
+export const deleteCustomerData = (id) => {
+  return deleteCustomer(id);
+};
+
+export const editCustomerData = (id, customer) => {
+  return editCustomer(id, customer);
+};
 export const loginToSSOStrapi = (username, password) => {
   return loginApiSSO(username, password);
 };

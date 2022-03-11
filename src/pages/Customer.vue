@@ -3,7 +3,6 @@
     <!-- <div class="q-pa-md">
       <q-btn color="teal" @click="showLoading" label="Sync Customer Data" />
     </div> -->
-
     <q-dialog v-model="newCustomer">
       <q-card style="width: 500px">
         <q-card-section>
@@ -129,7 +128,7 @@
     </q-dialog>
 
     <div class="row justify-end">
-      <q-btn
+      <!-- <q-btn
         type="submit"
         :loading="submitting"
         label="Sync Customer Data"
@@ -139,32 +138,42 @@
         <template v-slot:loading>
           <q-spinner-facebook />
         </template>
-      </q-btn>
+      </q-btn> -->
     </div>
     <br />
     <div class="q-pa-md">
       <q-table
+        title="Treats"
         :filter="filter"
         :rows="rowsCustomer"
         :columns="colsCustomer"
         row-key="name"
       >
         <template v-slot:top>
-          <AddCustomer />
+          <div>
+            <label class="q-pa-md text-h4"> Customer Table </label><br />
+            <label class="q-pa-md">{{ length + " " + "Entries found" }}</label>
+          </div>
           <q-space />
-          <q-input
-            borderless
-            dense
-            debounce="300"
-            color="primary"
-            v-model="filter"
-            label="Search"
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
+          <div>
+            <br />
+            <AddCustomer :rowsCustomer="rowsCustomer" /><br />
+            <q-input
+              borderless
+              dense
+              debounce="300"
+              color="primary"
+              v-model="filter"
+              label="Search"
+            >
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
+          <q-enter />
         </template>
+
         <br />
         <br />
         <template v-slot:body="props">
@@ -184,9 +193,9 @@
             <q-td key="contactNo" :props="props">
               {{ props.row.contactNo }}
             </q-td>
-            <q-td key="address" :props="props">
+            <!-- <q-td key="address" :props="props">
               {{ props.row.address }}
-            </q-td>
+            </q-td> -->
             <q-td key="action" :props="props">
               <CustomerData :customer="props.row" />
             </q-td>
@@ -265,6 +274,8 @@ export default {
     const qs = require("qs");
     const loading = ref(false);
     const filter = ref("");
+    const length = ref("");
+
     const customerInfo = ref([]);
     const industries = ref([]);
     const types = ref([]);
@@ -310,13 +321,13 @@ export default {
         field: "contactNo",
         sortable: true,
       },
-      {
-        name: "address",
-        align: "center",
-        label: "Address",
-        field: "address",
-        sortable: true,
-      },
+      // {
+      //   name: "address",
+      //   align: "center",
+      //   label: "Address",
+      //   field: "address",
+      //   sortable: true,
+      // },
       {
         name: "action",
         align: "center",
@@ -340,13 +351,13 @@ export default {
           encodeValuesOnly: true,
         }
       );
-      console.log(query);
 
       customerInfo.value = await getAllCustomerData();
+      console.log(customerInfo.value);
+      length.value = customerInfo.value.length;
       customerInfo.value.map(function (customer, index) {
         let attrObj = customer.attributes;
-        console.log(attrObj.type.data.attributes.label);
-
+        console.log("type", attrObj.type.data.attributes.label);
         rowsCustomer.value.push({
           index: index + 1,
           id: customer.id,
@@ -355,8 +366,8 @@ export default {
           contactPerson: attrObj.contactPerson,
           contactNo: attrObj.contactNo,
           address: attrObj.address,
-          industry: attrObj.industry.data.attributes.label,
-          type: attrObj.type.data.attributes.label,
+          industry: attrObj.industry.data,
+          type: attrObj.type.data,
         });
         return rowsCustomer.value;
       });
@@ -372,7 +383,6 @@ export default {
           encodeValuesOnly: true,
         }
       );
-      console.log(query);
     });
 
     return {
@@ -386,6 +396,7 @@ export default {
       rowsCustomer,
       colsCustomer,
       industries,
+      length,
 
       showLoading() {
         $q.loading.show({

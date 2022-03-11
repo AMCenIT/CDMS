@@ -9,6 +9,7 @@
     />
     <q-dialog v-model="addCustomerModal">
       <div v-if="addCustomerModal">
+        <!-- {{ rowsCustomer }} -->
         <q-form ref="customerForm" @submit="onSubmit" @reset="onReset">
           <q-card style="width: 500px">
             <q-card-section class="bg-primary text-white">
@@ -153,6 +154,8 @@
                 square
                 v-model="industry"
                 :options="industry_options"
+                lazy-rules
+                :rules="[(val) => !!val || 'Please enter industry']"
               />
               <br />
               <q-select
@@ -160,13 +163,14 @@
                 dense
                 square
                 transition-show="flip-up"
-                transition-hide="flip-down"
                 v-model="type"
                 :options="type_options"
                 option-label="label"
                 label="Acoount Type"
                 emit-value
                 map-options
+                lazy-rules
+                :rules="[(val) => !!val || 'Please enter account type']"
               />
             </q-card-section>
 
@@ -199,7 +203,12 @@ import { getAllType, getIndutries, postCustomerData } from "src/provider.js";
 import { useQuasar } from "quasar";
 
 export default {
-  setup() {
+  props: {
+    rowsCustomer: {
+      type: Array,
+    },
+  },
+  setup(props) {
     const addCustomerModal = ref(false);
     const customerForm = ref(null);
 
@@ -301,12 +310,13 @@ export default {
           data.data.industry.label = industry.value.label;
           postCustomerData(data);
           addCustomerModal.value = false;
+
           onReset();
           $q.notify({
             color: "green-4",
             textColor: "white",
             icon: "cloud_done",
-            message: "Submitted",
+            message: "You have successfully inserted the customer data",
           });
         } else {
           $q.notify({
