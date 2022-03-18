@@ -6,7 +6,7 @@
           flat
           dense
           round
-          @click="clickleftDrawerOpen"
+          @click="toggleLeftDrawer"
           aria-label="Menu"
           icon="menu"
           v-if="$q.screen.lt.md"
@@ -42,7 +42,7 @@
                       <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
                     </q-avatar>
                   </q-item-section>
-                  <q-item-section>Manage Account</q-item-section>
+                  <q-item-section>Profile</q-item-section>
                 </q-item>
                 <q-separator />
                 <q-item clickable @click="logout">
@@ -104,91 +104,56 @@
           </q-item>
 
           <q-separator />
-          <q-expansion>
-            <q-expansion-item
-              expand-separator
-              icon="library_books"
-              label="Others"
+          <q-expansion-item
+            expand-separator
+            icon="library_books"
+            label="Others"
+          >
+            <q-item
+              v-ripple
+              clickable
+              @click="$router.push('/MainLayout/Home')"
             >
-              <q-item
-                v-ripple
-                clickable
-                @click="$router.push('/MainLayout/Home')"
-              >
-                <q-item-section avatar>
-                  <q-icon color="grey" name="history" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Transaction History</q-item-label>
-                </q-item-section>
-              </q-item>
+              <q-item-section avatar>
+                <q-icon color="grey" name="history" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Transaction History</q-item-label>
+              </q-item-section>
+            </q-item>
 
-              <q-item
-                v-ripple
-                clickable
-                @click="$router.push('/MainLayout/Home')"
-              >
-                <q-item-section avatar>
-                  <q-icon color="grey" name="analytics" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Analytics</q-item-label>
-                </q-item-section>
-              </q-item>
+            <q-item
+              v-ripple
+              clickable
+              @click="$router.push('/MainLayout/Home')"
+            >
+              <q-item-section avatar>
+                <q-icon color="grey" name="analytics" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Analytics</q-item-label>
+              </q-item-section>
+            </q-item>
 
-              <q-item
-                v-ripple
-                clickable
-                @click="$router.push('/MainLayout/Home')"
-              >
-                <q-item-section avatar>
-                  <q-icon color="grey" name="summarize" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Analytics</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-expansion-item>
-          </q-expansion>
+            <q-item
+              v-ripple
+              clickable
+              @click="$router.push('/MainLayout/Home')"
+            >
+              <q-item-section avatar>
+                <q-icon color="grey" name="summarize" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Report</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-expansion-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
       <router-view class="q-pa-md" />
-
-      <div class="my-card text-black q-pa-md">
-        <!-- <h6>Description of the System</h6> -->
-        <p hidden>{{ background }}</p>
-      </div>
-      <div
-        hidden
-        class="my-card text-white q-pa-md"
-        style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-      >
-        <h6>Introducton</h6>
-        <p>{{ introduction }}</p>
-      </div>
-
-      <div class="q-pa-md" hidden>
-        <div class="bg-primary text-white">
-          <q-toolbar>
-            <q-btn flat round dense icon="assignment_ind" />
-
-            <q-toolbar-title>CCD</q-toolbar-title>
-
-            <q-btn flat round dense icon="sim_card" class="q-mr-xs" />
-            <q-btn flat round dense icon="gamepad" />
-          </q-toolbar>
-          <q-toolbar inset>
-            <q-breadcrumbs active-color="white" style="font-size: 16px">
-              <q-breadcrumbs-el label="Home" icon="home" />
-              <q-breadcrumbs-el label="Customer" icon="widgets" />
-              <q-breadcrumbs-el label="Policy" />
-            </q-breadcrumbs>
-          </q-toolbar>
-        </div>
-      </div>
     </q-page-container>
   </q-layout>
 </template>
@@ -203,17 +168,29 @@ export default {
     const router = useRouter();
     const displayName = ref("");
     const userid = ref("");
+    const leftDrawerOpen = ref(false);
 
     const store = useStore();
     // userprofile getter
     const userLoggedin = computed(() => store.getters["auth/getUserProfile"]);
-    console.log(userLoggedin.value);
+
+    // AIOS USERGETter
+    const userLoggedinAIOS = computed(
+      () => store.getters["aiosauth/getUserProfile"]
+    );
+
     userid.value = userLoggedin.value.username;
     displayName.value = userLoggedin.value.displayName;
+
     const loginStatus = computed(() => store.getters["auth/getLoginApiStatus"]);
+    const loginStatusAIOS = computed(
+      () => store.getters["aiosauth/getLoginApiStatus"]
+    );
 
     async function logout() {
       await store.dispatch("auth/logout");
+      await store.dispatch("aiosauth/logout");
+
       router.push("/Login");
     }
 
@@ -221,20 +198,19 @@ export default {
       userid,
       logout,
       userLoggedin,
+      userLoggedinAIOS,
       displayName,
       loginStatus,
-      leftDrawerOpen: false,
+      leftDrawerOpen,
+      loginStatusAIOS,
+      toggleLeftDrawer() {
+        leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
       background:
         "The Centralized Customer Database is a web-based and access-controlled information system that supports automated tasks, data reusability, data sharing, and a more productive workflow without disruption not only for MIRDC but also to the customers as well.",
       introduction:
         "The Management Information System (MIS) unit of the Planning and Management Division (PMD) has been actively engaged in designing and maintaining information systems that are valuable to the Center. Indeed, MIS monitors the Center's Information Systems Strategic Plan (ISSP), whose primary purpose is to improve the Center's operational excellence through acquiring ICT infrastructure and to enhance the existing system or application.Centralized Customer Database (CCD) is a database that is located, stored, and maintained in a single location, thus it is easier to access and coordinate data and will help the team (PMD) to spend less time cleaning up or preparing the data and more time focusing on its essential growth and success.",
     };
-  },
-  methods: {
-    clickleftDrawerOpen() {
-      console.log("test");
-      this.leftDrawerOpen = true;
-    },
   },
 };
 </script>

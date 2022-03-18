@@ -1,11 +1,32 @@
-import { api } from "boot/axios";
+import { api, aiosapi, oneshop } from "boot/axios";
 
-const getCustomerData = function () {
-  return api
-    .get("api/customers/?populate=industry&populate=type")
-    .then(function (customers) {
-      return customers.data.data;
+const loginApiAios = async function () {
+  await aiosapi
+    .post("/authentication", {
+      strategy: "local",
+      email: "it.amcen@gmail.com",
+      password: "123456",
+    })
+    .then((res) => {
+      console.log("post data", res.data);
     });
+};
+
+const getCustomerDataaios = function () {
+  return aiosapi.get("users").then(function (users) {
+    return users.data;
+  });
+};
+// Oneshop
+const getCustomerDataOneShop = function () {
+  return oneshop.get("customers?$limit=1000").then(function (customers) {
+    return customers.data;
+  });
+};
+const getCustomerData = function (query) {
+  return api.get("/api/customers?" + query).then(function (customers) {
+    return customers;
+  });
 };
 
 // add
@@ -50,9 +71,11 @@ const loginApiSSO = function (username, password) {
 };
 
 const getIndustry = function () {
-  return api.get("api/industries").then(function (industries) {
-    return industries.data.data;
-  });
+  return api
+    .get("api/industries?pagination[start]=0&pagination[limit]=40")
+    .then(function (industries) {
+      return industries.data.data;
+    });
 };
 
 const getType = function () {
@@ -61,8 +84,20 @@ const getType = function () {
   });
 };
 
-export const getAllCustomerData = () => {
-  return getCustomerData();
+export const loginAios = () => {
+  return loginApiAios();
+};
+
+export const getAllCustomerData = (query) => {
+  return getCustomerData(query);
+};
+
+export const getCustomerDataAllaios = () => {
+  return getCustomerDataaios();
+};
+
+export const getAllCustomerDataOneShop = () => {
+  return getCustomerDataOneShop();
 };
 
 export const postCustomerData = (customer) => {

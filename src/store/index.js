@@ -1,6 +1,7 @@
-import { store } from 'quasar/wrappers'
-import { createStore } from 'vuex'
-import  auth  from './auth'
+import { store } from "quasar/wrappers";
+import { createStore } from "vuex";
+import auth from "./auth";
+import aiosauth from "./aiosauth";
 
 // import authModule from './module-example/auth';
 
@@ -20,16 +21,14 @@ export default function (/* { ssrContext } */) {
     modules: {
       // example
       // auth: authModule
-      auth
+      auth,
+      aiosauth,
     },
 
     // enable strict mode (adds overhead!)
     // for dev mode and --debug builds only
-    strict: process.env.DEBUGGING
-  })
+    strict: process.env.DEBUGGING,
+  });
 
- 
-  return Store
+  return Store;
 }
-
-

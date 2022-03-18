@@ -72,17 +72,10 @@
 </template>
 
 <script>
-import {
-  reactive,
-  defineComponent,
-  ref,
-  onMounted,
-  computed,
-  watch,
-} from "vue";
+import { defineComponent, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-
+import { loginAios } from "src/provider.js";
 import { useQuasar, QSpinnerGears } from "quasar";
 export default defineComponent({
   name: "Login",
@@ -90,8 +83,10 @@ export default defineComponent({
   setup() {
     const usernameModel = ref("");
     const passwordModel = ref("");
-    const getUserProfile = ref("");
-    const isLoading = ref(true);
+
+    const aiosEmail = ref("it.amcen@gmail.com");
+    const aiospass = ref("123456");
+    const aiosStrategy = ref("local");
     const isPwd = ref(true);
     const loginRefForm = ref(null);
 
@@ -107,12 +102,24 @@ export default defineComponent({
       };
     });
 
+    // async function logintoAISO() {
+    //   loginAios();
+    // }
+
     const getLoginApiStatus = computed(
       () => store.getters["auth/getLoginApiStatus"]
     );
 
+    const getLoginApiStatusaios = computed(
+      () => store.getters["aiosauth/getLoginApiStatus"]
+    );
+
     async function setterAuth(payload) {
       await store.dispatch("auth/loginApi", payload);
+    }
+
+    async function setterAuthaios(credential) {
+      await store.dispatch("aiosauth/loginApiAIOS", credential);
     }
 
     function onSubmit() {
@@ -135,15 +142,25 @@ export default defineComponent({
         identifier: usernameModel.value,
         password: passwordModel.value,
       };
+
+      const credential = {
+        email: aiosEmail.value,
+        password: aiospass.value,
+        strategy: aiosStrategy.value,
+      };
       await setterAuth(payload);
+      await setterAuthaios(credential);
 
-      console.log("setLoginApiStatus", getLoginApiStatus.value);
-      // console.log("LocalStorage", $q.localStorage.getItem("user"));
-
-      if (getLoginApiStatus.value == "success") {
+      if (
+        getLoginApiStatus.value == "success" &&
+        getLoginApiStatusaios.value == "success"
+      ) {
         $q.loading.hide();
         router.push("/MainLayout/Home");
-      } else if (getLoginApiStatus.value == "failed") {
+      } else if (
+        getLoginApiStatus.value == "failed" &&
+        getLoginApiStatusaios.value == "failed"
+      ) {
         $q.loading.hide();
         $q.notify({
           color: "red-5",
@@ -164,6 +181,9 @@ export default defineComponent({
     }
 
     return {
+      aiosStrategy,
+      aiosEmail,
+      aiospass,
       usernameModel,
       passwordModel,
       isPwd,

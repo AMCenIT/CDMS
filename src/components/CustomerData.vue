@@ -40,7 +40,8 @@
             {{ customer.contactPerson }}
           </h4>
           <label align="right">
-            <b>Account Type:</b> {{ customer.type.attributes.label }}</label
+            <b>Account Type:</b>
+            {{ customer.type.attributes.label }}</label
           >
         </q-card-section>
 
@@ -339,7 +340,6 @@ export default {
           data.data.type = type.value;
           data.data.industry = industry.value;
           editCustomerData(editId.value, data);
-          console.log("industry", data.data.industry.label);
           editCustomerModal.value = false;
           onReset();
           $q.notify({

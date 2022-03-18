@@ -3,6 +3,7 @@
     <!-- <div class="q-pa-md">
       <q-btn color="teal" @click="showLoading" label="Sync Customer Data" />
     </div> -->
+
     <q-dialog v-model="newCustomer">
       <q-card style="width: 500px">
         <q-card-section>
@@ -127,19 +128,8 @@
       </q-card>
     </q-dialog>
 
-    <div class="row justify-end">
-      <!-- <q-btn
-        type="submit"
-        :loading="submitting"
-        label="Sync Customer Data"
-        class="q-mt-md"
-        color="primary"
-      >
-        <template v-slot:loading>
-          <q-spinner-facebook />
-        </template>
-      </q-btn> -->
-    </div>
+    <div class="row justify-end"></div>
+    <syncCustomerData />
     <br />
     <div class="q-pa-md">
       <q-table
@@ -148,6 +138,7 @@
         :rows="rowsCustomer"
         :columns="colsCustomer"
         row-key="name"
+        v-model:pagination="pagination"
       >
         <template v-slot:top>
           <div>
@@ -171,7 +162,6 @@
               </template>
             </q-input>
           </div>
-          <q-enter />
         </template>
 
         <br />
@@ -181,25 +171,62 @@
             <q-td key="index" :props="props">
               {{ props.row.index }}
             </q-td>
-            <!-- <q-td key="displayName" :props="props">
-              {{ props.row.displayName }}
-            </q-td> -->
+
             <q-td key="contactPerson" :props="props">
               {{ props.row.contactPerson }}
             </q-td>
-            <q-td key="email" :props="props">
-              {{ props.row.email }}
-            </q-td>
+
             <q-td key="contactNo" :props="props">
               {{ props.row.contactNo }}
             </q-td>
-            <!-- <q-td key="address" :props="props">
-              {{ props.row.address }}
-            </q-td> -->
+
             <q-td key="action" :props="props">
               <CustomerData :customer="props.row" />
             </q-td>
           </q-tr>
+        </template>
+        <template v-slot:pagination="scope">
+          <q-btn
+            v-if="scope.pagesNumber > 2"
+            icon="first_page"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isFirstPage"
+            @click="scope.firstPage"
+          />
+
+          <q-btn
+            icon="chevron_left"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isFirstPage"
+            @click="scope.prevPage"
+          />
+
+          <q-btn
+            icon="chevron_right"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isLastPage"
+            @click="scope.nextPage"
+          />
+
+          <q-btn
+            v-if="scope.pagesNumber > 2"
+            icon="last_page"
+            color="grey-8"
+            round
+            dense
+            flat
+            :disable="scope.isLastPage"
+            @click="scope.lastPage"
+          />
         </template>
       </q-table>
     </div>
@@ -259,9 +286,17 @@
 </template>
 
 <script>
-import { ref, getCurrentInstance, onBeforeMount, onMounted } from "vue";
+import {
+  ref,
+  getCurrentInstance,
+  onBeforeMount,
+  onMounted,
+  computed,
+} from "vue";
 import AddCustomer from "src/components/addCustomer.vue";
 import CustomerData from "src/components/CustomerData.vue";
+import syncCustomerData from "src/components/syncCustomerData.vue";
+
 import { useQuasar } from "quasar";
 import { getAllCustomerData } from "src/provider.js";
 
@@ -269,21 +304,33 @@ export default {
   components: {
     AddCustomer,
     CustomerData,
+    syncCustomerData,
   },
   setup() {
     const qs = require("qs");
     const loading = ref(false);
     const filter = ref("");
     const length = ref("");
+    const lengthaios = ref("");
+
+    const paginationStart = ref("");
+    const paginationLimit = ref("");
+
+    const aiosUser = ref([]);
+    const strapiApiCustomer = ref([]);
 
     const customerInfo = ref([]);
     const industries = ref([]);
-    const types = ref([]);
     const rowCount = ref(10);
     const $q = useQuasar();
     let timer;
-    const app = getCurrentInstance();
-    const api = app.appContext.config.globalProperties.$api;
+    const pagination = ref({
+      sortBy: "desc",
+      descending: false,
+      page: 2,
+      rowsPerPage: 5,
+      // rowsNumber: xx if getting data from a server
+    });
     const rowsCustomer = ref([]);
     const colsCustomer = ref([
       {
@@ -307,13 +354,13 @@ export default {
         field: "contactPerson",
         sortable: true,
       },
-      {
-        name: "email",
-        align: "center",
-        label: "Email",
-        field: "email",
-        sortable: true,
-      },
+      // {
+      //   name: "email",
+      //   align: "center",
+      //   label: "Email",
+      //   field: "email",
+      //   sortable: true,
+      // },
       {
         name: "contactNo",
         align: "center",
@@ -343,21 +390,40 @@ export default {
     });
 
     async function getAllCustomer() {
+      const qs = require("qs");
       const query = qs.stringify(
         {
-          populate: ["industry"],
+          populate: ["industry", "type"],
+          pagination: {
+            start: 0,
+            limit: 1000,
+          },
         },
         {
           encodeValuesOnly: true,
         }
       );
 
-      customerInfo.value = await getAllCustomerData();
+      const total = qs.stringify(
+        {
+          pagination: {
+            start: 0,
+            limit: 1000,
+          },
+        },
+        {
+          encodeValuesOnly: true,
+        }
+      );
+
+      console.log(total);
+      strapiApiCustomer.value = await getAllCustomerData(total);
+      length.value = strapiApiCustomer.value.data.meta.pagination.total;
+      // table
+      customerInfo.value = await getAllCustomerData(query);
       console.log(customerInfo.value);
-      length.value = customerInfo.value.length;
-      customerInfo.value.map(function (customer, index) {
+      customerInfo.value.data.data.map(function (customer, index) {
         let attrObj = customer.attributes;
-        console.log("type", attrObj.type.data.attributes.label);
         rowsCustomer.value.push({
           index: index + 1,
           id: customer.id,
@@ -373,19 +439,34 @@ export default {
       });
     }
 
+    // async function getAiosUser() {
+    //   customerInfo.value = await getAllCustomerData();
+    //   console.log(customerInfo.value);
+    //   length.value = customerInfo.value.length;
+    //   aiosUser.value = await getCustomerDataAllaios();
+    //   lengthaios.value = aiosUser.value.length;
+    //   aiosUser.value.data.map((customer, index) => {
+    //     rowsCustomer.value.push({
+    //       index: index + length.value + 1,
+    //       id: customer._id,
+    //       displayName: customer.company_name,
+    //       email: customer.email,
+    //       contactPerson: customer.first_name + customer.last_name,
+    //       contactNo: customer.mobile,
+    //       address: customer.house_bldg_st,
+    //       industry: customer.sector,
+    //       type: customer.account_type,
+    //     });
+    //     return rowsCustomer.value;
+    //   });
+    // }
+
     onMounted(() => {
       getAllCustomer();
-      const query = qs.stringify(
-        {
-          populate: ["industry"],
-        },
-        {
-          encodeValuesOnly: true,
-        }
-      );
     });
 
     return {
+      metaObj: ref(""),
       customerInfo,
       newCustomer: ref(false),
       duplicatedCustomer: ref(false),
@@ -397,7 +478,13 @@ export default {
       colsCustomer,
       industries,
       length,
+      lengthaios,
+      aiosUser,
+      pagination,
 
+      pagesNumber: computed(() => {
+        return Math.ceil(rows.length / pagination.value.rowsPerPage);
+      }),
       showLoading() {
         $q.loading.show({
           message: "Syncing Customer's Infomation. Please wait...",

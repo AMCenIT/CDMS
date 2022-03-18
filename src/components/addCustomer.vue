@@ -126,8 +126,7 @@
                 lazy-rules
                 :rules="[
                   (val) =>
-                    (val && val.length == 11) ||
-                    'Please enter 11 digits number',
+                    (val && val.length > 0) || 'Please enter contact number',
                 ]"
               />
 
@@ -162,7 +161,6 @@
                 outlined
                 dense
                 square
-                transition-show="flip-up"
                 v-model="type"
                 :options="type_options"
                 option-label="label"
@@ -174,7 +172,7 @@
               />
             </q-card-section>
 
-            <q-card-actions align="right" class="bg-white text-black row">
+            <q-card-actions align="right" class="bg-white text-black">
               <q-btn
                 color="grey"
                 label="Cancel"
