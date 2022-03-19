@@ -134,11 +134,14 @@
     <div class="q-pa-md">
       <q-table
         title="Treats"
-        :filter="filter"
-        :rows="rowsCustomer"
-        :columns="colsCustomer"
-        row-key="name"
+        :rows="rows"
+        :columns="columns"
+        row-key="id"
         v-model:pagination="pagination"
+        :loading="loading"
+        :filter="filter"
+        @request="onRequest"
+        binary-state-sort
       >
         <template v-slot:top>
           <div>
@@ -184,49 +187,6 @@
               <CustomerData :customer="props.row" />
             </q-td>
           </q-tr>
-        </template>
-        <template v-slot:pagination="scope">
-          <q-btn
-            v-if="scope.pagesNumber > 2"
-            icon="first_page"
-            color="grey-8"
-            round
-            dense
-            flat
-            :disable="scope.isFirstPage"
-            @click="scope.firstPage"
-          />
-
-          <q-btn
-            icon="chevron_left"
-            color="grey-8"
-            round
-            dense
-            flat
-            :disable="scope.isFirstPage"
-            @click="scope.prevPage"
-          />
-
-          <q-btn
-            icon="chevron_right"
-            color="grey-8"
-            round
-            dense
-            flat
-            :disable="scope.isLastPage"
-            @click="scope.nextPage"
-          />
-
-          <q-btn
-            v-if="scope.pagesNumber > 2"
-            icon="last_page"
-            color="grey-8"
-            round
-            dense
-            flat
-            :disable="scope.isLastPage"
-            @click="scope.lastPage"
-          />
         </template>
       </q-table>
     </div>
@@ -324,15 +284,17 @@ export default {
     const rowCount = ref(10);
     const $q = useQuasar();
     let timer;
+    const rows = ref([]);
     const pagination = ref({
       sortBy: "desc",
       descending: false,
-      page: 2,
+      page: 1,
       rowsPerPage: 5,
-      // rowsNumber: xx if getting data from a server
+      rowsNumber: 1000,
     });
     const rowsCustomer = ref([]);
-    const colsCustomer = ref([
+    const originalRows = ref([]);
+    const columns = ref([
       {
         name: "index",
         align: "center",
@@ -395,8 +357,9 @@ export default {
         {
           populate: ["industry", "type"],
           pagination: {
+            limit: 5,
             start: 0,
-            limit: 1000,
+            skip: 5,
           },
         },
         {
@@ -407,8 +370,8 @@ export default {
       const total = qs.stringify(
         {
           pagination: {
-            start: 0,
-            limit: 1000,
+            page: 1,
+            pageSize: 1000,
           },
         },
         {
@@ -421,10 +384,13 @@ export default {
       length.value = strapiApiCustomer.value.data.meta.pagination.total;
       // table
       customerInfo.value = await getAllCustomerData(query);
+    }
+
+    function fetchFromServer(startRow, count, filter, sortBy, descending) {
       console.log(customerInfo.value);
       customerInfo.value.data.data.map(function (customer, index) {
         let attrObj = customer.attributes;
-        rowsCustomer.value.push({
+        originalRows.value.push({
           index: index + 1,
           id: customer.id,
           displayName: attrObj.displayName,
@@ -435,34 +401,116 @@ export default {
           industry: attrObj.industry.data,
           type: attrObj.type.data,
         });
-        return rowsCustomer.value;
+        return originalRows.value;
       });
+      const data = filter
+        ? originalRows.value.filter((row) => row.name.includes(filter))
+        : originalRows.value.slice();
+
+      console.log("ORIGINALROWS", originalRows);
+
+      // handle sortBy
+      if (sortBy) {
+        const sortFn =
+          sortBy === "desc"
+            ? descending
+              ? (a, b) => (a.name > b.name ? -1 : a.name < b.name ? 1 : 0)
+              : (a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0)
+            : descending
+            ? (a, b) => parseFloat(b[sortBy]) - parseFloat(a[sortBy])
+            : (a, b) => parseFloat(a[sortBy]) - parseFloat(b[sortBy]);
+        data.sort(sortFn);
+      }
+      console.log("DATA", data);
+
+      return data.slice(startRow, startRow + count);
     }
 
-    // async function getAiosUser() {
-    //   customerInfo.value = await getAllCustomerData();
-    //   console.log(customerInfo.value);
-    //   length.value = customerInfo.value.length;
-    //   aiosUser.value = await getCustomerDataAllaios();
-    //   lengthaios.value = aiosUser.value.length;
-    //   aiosUser.value.data.map((customer, index) => {
-    //     rowsCustomer.value.push({
-    //       index: index + length.value + 1,
-    //       id: customer._id,
-    //       displayName: customer.company_name,
-    //       email: customer.email,
-    //       contactPerson: customer.first_name + customer.last_name,
-    //       contactNo: customer.mobile,
-    //       address: customer.house_bldg_st,
-    //       industry: customer.sector,
-    //       type: customer.account_type,
-    //     });
-    //     return rowsCustomer.value;
-    //   });
-    // }
+    // emulate 'SELECT count(*) FROM ...WHERE...'
+    function getRowsNumberCount(filter) {
+      customerInfo.value.data.data.map(function (customer, index) {
+        let attrObj = customer.attributes;
+        originalRows.value.push({
+          index: index + 1,
+          id: customer.id,
+          displayName: attrObj.displayName,
+          email: attrObj.email,
+          contactPerson: attrObj.contactPerson,
+          contactNo: attrObj.contactNo,
+          address: attrObj.address,
+          industry: attrObj.industry.data,
+          type: attrObj.type.data,
+        });
+        return originalRows.value;
+      });
+      if (!filter) {
+        return originalRows.value.length;
+      }
+      let count = 0;
+      originalRows.value.forEach((treat) => {
+        console.log("TREAT", treat);
+        if (treat.name.includes(filter)) {
+          ++count;
+        }
+      });
+      console.log("LENGTH", originalRows.value.length);
+      console.log("COUNT", count);
+
+      return count;
+    }
+
+    function onRequest(props) {
+      const { page, rowsPerPage, sortBy, descending } = props.pagination;
+      const filter = props.filter;
+
+      loading.value = true;
+
+      // emulate server
+      setTimeout(() => {
+        // update rowsCount with appropriate value
+        pagination.value.rowsNumber = getRowsNumberCount(filter);
+
+        console.log("PIGINTAION ROWSNUMBER", pagination.value);
+
+        // get all rows if "All" (0) is selected
+        const fetchCount =
+          rowsPerPage === 0 ? pagination.value.rowsNumber : rowsPerPage;
+
+        // calculate starting row of data
+        const startRow = (page - 1) * rowsPerPage;
+
+        // fetch data from "server"
+        const returnedData = fetchFromServer(
+          startRow,
+          fetchCount,
+          filter,
+          sortBy,
+          descending
+        );
+
+        // clear out existing data and add new
+        rows.value.splice(0, rows.value.length, ...returnedData);
+        console.log("ROWS VALUE", rows.value);
+        console.log("RETUNED DATA", returnedData);
+
+        // don't forget to update local pagination object
+        pagination.value.page = page;
+        pagination.value.rowsPerPage = rowsPerPage;
+        pagination.value.sortBy = sortBy;
+        pagination.value.descending = descending;
+
+        // ...and turn of loading indicator
+        loading.value = false;
+      }, 1500);
+    }
 
     onMounted(() => {
       getAllCustomer();
+      // get initial data from server (1st page)
+      onRequest({
+        pagination: pagination.value,
+        filter: undefined,
+      });
     });
 
     return {
@@ -475,16 +523,16 @@ export default {
       rowCount,
       reviewuploadQuotation: false,
       rowsCustomer,
-      colsCustomer,
       industries,
       length,
       lengthaios,
       aiosUser,
       pagination,
+      onRequest,
 
-      pagesNumber: computed(() => {
-        return Math.ceil(rows.length / pagination.value.rowsPerPage);
-      }),
+      columns,
+      rows,
+
       showLoading() {
         $q.loading.show({
           message: "Syncing Customer's Infomation. Please wait...",
