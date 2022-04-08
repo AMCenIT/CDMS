@@ -1,6 +1,10 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-1">
-    <q-header elevated class="bg-white text-grey-8 q-py-xs" height-hint="58">
+  <q-layout view="hHh lpR fFf" class="bg-grey-9">
+    <q-header
+      elevated
+      class="bg-white text-secondary q-py-xs bg-blue-grey-7"
+      height-hint="58"
+    >
       <q-toolbar>
         <q-btn
           flat
@@ -9,7 +13,7 @@
           @click="toggleLeftDrawer"
           aria-label="Menu"
           icon="menu"
-          v-if="$q.screen.lt.md"
+          size="1.4em"
         />
 
         <img
@@ -32,9 +36,19 @@
         <q-space />
 
         <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn round flat color="grey-8" icon="account_circle">
+          <q-btn
+            round
+            flat
+            color="secondary"
+            size="1.4em"
+            icon="account_circle"
+          >
             <q-tooltip>Log out</q-tooltip>
-            <q-menu transition-show="flip-right" transition-hide="flip-left">
+            <q-menu
+              transition-show="flip-right"
+              transition-hide="flip-left"
+              class="bg-blue-grey-7"
+            >
               <q-list style="min-width: 100px">
                 <q-item clickable>
                   <q-item-section avatar>
@@ -42,11 +56,13 @@
                       <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
                     </q-avatar>
                   </q-item-section>
-                  <q-item-section>Profile</q-item-section>
+                  <q-item-section class="text-secondary"
+                    >Profile</q-item-section
+                  >
                 </q-item>
                 <q-separator />
-                <q-item clickable @click="logout">
-                  <q-item-section>Log out</q-item-section>
+                <q-item clickable @click="logout" class="bg-secondary">
+                  <q-item-section class="text-white">LOG OUT</q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
@@ -59,12 +75,13 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      content-class="bg-grey-2"
+      content-class="bg-secondary"
       :width="240"
+      class="bg-blue-grey-7"
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item class="my-card bg-primary text-white">
+          <q-item class="my-card bg-secondary text-white">
             <q-tooltip>Account</q-tooltip>
 
             <q-item-section avatar>
@@ -84,7 +101,7 @@
 
           <q-item @click="$router.push('/MainLayout/Home')" v-ripple clickable>
             <q-item-section avatar>
-              <q-icon color="primary" name="home" />
+              <q-icon color="secondary" name="dashboard" />
             </q-item-section>
             <q-item-section>
               <q-item-label>Home</q-item-label>
@@ -96,10 +113,23 @@
             clickable
           >
             <q-item-section avatar>
-              <q-icon color="primary" name="group" />
+              <q-icon color="secondary" name="info" />
             </q-item-section>
             <q-item-section>
               <q-item-label>Customer Infomation</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            @click="$router.push('/MainLayout/crudCustomer')"
+            v-ripple
+            clickable
+          >
+            <q-item-section avatar>
+              <q-icon color="secondary" name="edit" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>CRUD Customer </q-item-label>
             </q-item-section>
           </q-item>
 

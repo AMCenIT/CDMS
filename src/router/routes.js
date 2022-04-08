@@ -27,6 +27,13 @@ const routes = [
         },
       },
       {
+        path: "crudCustomer",
+        component: () => import("pages/crudCustomer.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: "Home",
         component: () => import("layouts/Home.vue"),
         meta: {

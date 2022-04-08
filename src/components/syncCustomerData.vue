@@ -188,7 +188,7 @@ onMounted(() => {
   <div>
     <div v-if="(isSynced = true)">
       <q-btn
-        label="Sync Customer Data"
+        label="Sync Data"
         @click="syncDataBase"
         icon="sync"
         color="secondary"

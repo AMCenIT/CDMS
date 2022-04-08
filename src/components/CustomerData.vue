@@ -35,13 +35,13 @@
     />
     <q-dialog v-model="viewCustomerModal"
       ><q-card style="width: 500px">
-        <q-card-section class="bg-primary text-white">
+        <q-card-section class="bg-secondary text-white">
           <h4 class="text-uppercase q-pa-sm">
-            {{ customer.contactPerson }}
+            {{ customer.attributes.contactPerson }}
           </h4>
           <label align="right">
             <b>Account Type:</b>
-            {{ customer.type.attributes.label }}</label
+            {{ customer.attributes.type.data.attributes.label }}</label
           >
         </q-card-section>
 
@@ -52,34 +52,34 @@
         </q-item>
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Company Name:</b> {{ customer.displayName }}
+            <b>Company Name:</b> {{ customer.attributes.displayName }}
           </div></q-item
         >
-        <q-item>
+        <!-- <q-item>
           <div class="text-subtitle2 q-pa-sm">
             <b>Industry: </b> {{ customer.industry.attributes.label }}
           </div></q-item
-        >
+        > -->
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Email:</b> {{ customer.email }}
+            <b>Email:</b> {{ customer.attributes.email }}
           </div></q-item
         >
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Contact Number:</b> {{ customer.contactNo }}
+            <b>Contact Number:</b> {{ customer.attributes.contactNo }}
           </div></q-item
         >
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Address:</b>{{ customer.address }}
+            <b>Address:</b>{{ customer.attributes.address }}
           </div></q-item
         >
         <q-card-section> </q-card-section>
 
         <q-card-actions align="right" class="bg-white text-black row">
           <q-btn
-            color="grey"
+            color="blue-grey-6"
             label="Close"
             type="reset"
             v-close-popup
@@ -99,7 +99,7 @@
           @reset="onReset"
         >
           <q-card style="width: 500px">
-            <q-card-section class="bg-primary text-white">
+            <q-card-section class="bg-secondary text-white">
               <div class="text-h6">Add New Customer</div>
             </q-card-section>
             <q-card-section padding>
@@ -149,13 +149,9 @@
                 outlined
                 dense
                 square
-                lazy-rules
-                :rules="[
-                  (val) =>
-                    (val && val.length == 11) ||
-                    'Please enter 11 digits number',
-                ]"
               />
+
+              <br />
 
               <q-input
                 color="black"
@@ -165,11 +161,8 @@
                 dense
                 type="email"
                 square
-                lazy-rules
-                :rules="[
-                  (val) => !!val || 'Please enter a valid email address',
-                ]"
               />
+              <br />
 
               <q-select
                 label="Industry"
@@ -204,7 +197,7 @@
 
             <q-card-actions align="right" class="bg-white text-black row">
               <q-btn
-                color="grey"
+                color="blue-grey-6"
                 label="Cancel"
                 type="reset"
                 v-close-popup
@@ -213,7 +206,7 @@
               />
               <q-btn
                 unelevated
-                color="primary"
+                color="secondary"
                 type="submit"
                 label="Save"
                 class="col"
@@ -234,7 +227,7 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="grey" v-close-popup />
+          <q-btn flat label="Cancel" color="blue-grey-6" v-close-popup />
           <q-btn
             flat
             label="Delete"
@@ -300,19 +293,22 @@ export default {
     }
 
     function editCustomer(props) {
-      company_name.value = props.displayName;
-      fullname.value = props.contactPerson;
-      address.value = props.address;
-      tel_mobile.value = props.contactNo;
-      email.value = props.email;
+      company_name.value = props.attributes.displayName;
+      fullname.value = props.attributes.contactPerson;
+      address.value = props.attributes.address;
+      tel_mobile.value = props.attributes.contactNo;
+      email.value = props.attributes.email;
       industry.value = {
-        id: props.industry.id,
-        label: props.industry.attributes.label,
+        id: props.attributes.industry.data.id,
+        label: props.attributes.industry.data.attributes.label,
       };
       type.value = {
-        id: props.type.id,
-        label: props.type.attributes.label,
+        id: props.attributes.type.data.id,
+        label: props.attributes.type.data.attributes.label,
       };
+      console.log("INDUSTRY", props.attributes.type.data.id);
+      console.log("INDUSTRY", props.attributes.type.data.attributes.label);
+
       editCustomerModal.value = true;
       editId.value = props.id;
     }
@@ -362,6 +358,7 @@ export default {
     function deleteCustomer(props) {
       deleteId.value = props.id;
       deleteCustomerModal.value = true;
+      console.log(props);
     }
     function confirmed() {
       deleteCustomerData(deleteId.value);

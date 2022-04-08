@@ -1,19 +1,8 @@
 <script>
-import {
-  ref,
-  getCurrentInstance,
-  onBeforeMount,
-  onMounted,
-  computed,
-} from "vue";
+import { ref, onBeforeMount, onMounted, computed } from "vue";
 import AddCustomer from "src/components/addCustomer.vue";
 import CustomerData from "src/components/CustomerData.vue";
-import AreaChart from "src/components/AreaChart.vue";
-import Doughnut from "src/components/Doughnut.vue";
-import Bar from "src/components/Bar.vue";
-import Line from "src/components/Line.vue";
-import Pie from "src/components/Pie.vue";
-
+import syncCustomerData from "src/components/syncCustomerData.vue";
 import { useQuasar } from "quasar";
 import { getAllCustomerData } from "src/provider.js";
 
@@ -21,16 +10,12 @@ export default {
   components: {
     AddCustomer,
     CustomerData,
-    AreaChart,
-    Doughnut,
-    Bar,
-    Line,
-    Pie,
+    syncCustomerData,
   },
   setup() {
     const qs = require("qs");
     const loading = ref(false);
-    const filter = ref("");
+
     const length = ref("");
     const lengthaios = ref("");
 
@@ -58,20 +43,6 @@ export default {
     const rowsCustomer = ref([]);
     const originalRows = ref([]);
     const columns = ref([
-      // {
-      //   name: "id",
-      //   align: "center",
-      //   label: "    No.",
-      //   field: "id",
-      //   sortable: true,
-      // },
-      // {
-      //   name: "displayName",
-      //   align: "center",
-      //   label: "Company",
-      //   field: "displayName",
-      //   sortable: true,
-      // },
       {
         name: "contactPerson",
         align: "center",
@@ -79,13 +50,6 @@ export default {
         field: "contactPerson",
         sortable: true,
       },
-      // {
-      //   name: "email",
-      //   align: "center",
-      //   label: "Email",
-      //   field: "email",
-      //   sortable: true,
-      // },
       {
         name: "contactNo",
         align: "center",
@@ -93,13 +57,6 @@ export default {
         field: "contactNo",
         sortable: true,
       },
-      // {
-      //   name: "address",
-      //   align: "center",
-      //   label: "Address",
-      //   field: "address",
-      //   sortable: true,
-      // },
       {
         name: "action",
         align: "center",
@@ -121,9 +78,6 @@ export default {
       sortBy,
       descending
     ) {
-      console.log("startRow", startRow);
-      console.log("count", count);
-
       const query = qs.stringify(
         {
           populate: ["industry", "type"],
@@ -139,6 +93,7 @@ export default {
 
       const response = await getAllCustomerData(query);
       console.log("responseresponse", response);
+
       return response.data;
     }
 
@@ -147,6 +102,8 @@ export default {
     async function onRequest(props) {
       const { page, rowsPerPage, sortBy, descending } = props.pagination;
       const filter = props.filter;
+
+      console.log("FILTER", filter);
 
       loading.value = true;
 
@@ -207,7 +164,7 @@ export default {
       newCustomer: ref(false),
       duplicatedCustomer: ref(false),
       loading,
-      filter,
+      filter: ref(""),
       rowCount,
       reviewuploadQuotation: false,
       rowsCustomer,
@@ -242,91 +199,12 @@ export default {
 
 <template>
   <div class="q-pa-md bg-blue-grey-6">
+    <div align="center" class="text-secondary text-weight-bolder shadow">
+      <h3>CDMS CRUD TABLE</h3>
+    </div>
+
     <div class="q-pa-md row justify-center">
-      <div class="q-pa-sm col-12 col-md-4">
-        <q-table
-          title="Treats"
-          :rows="rowsCustomer"
-          :columns="columns"
-          row-key="id"
-          v-model:pagination="pagination"
-          :loading="loading"
-          :filter="filter"
-          @request="onRequest"
-          binary-state-sort
-          hide-header
-          hide-bottom
-        >
-          <template v-slot:top>
-            <div
-              style="border-radius: 5px"
-              align="center"
-              class="bg-secondary col text-white q-pa-md"
-            >
-              <q-icon name="report" size="1.4em" class="q-mr-md" />
-              <label>Customer Status</label>
-            </div>
-          </template>
-
-          <br />
-          <br />
-          <template v-slot:body="props">
-            <q-tr :props="props">
-              <!-- <q-td key="index" :props="props">
-              <pre>{{ props.pageIndex + 1 }}</pre>
-            </q-td> -->
-              <q-td key="contactPerson" :props="props">
-                {{ props.row.attributes.contactPerson }}
-              </q-td>
-            </q-tr>
-          </template>
-        </q-table>
-      </div>
-      <!-- next -->
-      <div class="q-pa-sm col-12 col-md-3">
-        <q-table
-          title="Treats"
-          :rows="rowsCustomer"
-          :columns="columns"
-          row-key="id"
-          v-model:pagination="pagination"
-          :loading="loading"
-          :filter="filter"
-          @request="onRequest"
-          binary-state-sort
-          hide-header
-          hide-bottom
-        >
-          <template v-slot:top>
-            <div
-              style="border-radius: 5px"
-              align="center"
-              class="bg-secondary col text-white q-pa-md"
-            >
-              <q-icon name="report" size="1.4em" class="q-mr-md" />
-
-              <label rounded>Transaction Status</label>
-            </div>
-          </template>
-
-          <br />
-          <br />
-          <template v-slot:body="props">
-            <q-tr :props="props">
-              <!-- <q-td key="index" :props="props">
-              <pre>{{ props.pageIndex + 1 }}</pre>
-            </q-td> -->
-              <q-td key="contactPerson" :props="props">
-                {{ props.row.attributes.contactPerson }}
-              </q-td>
-            </q-tr>
-          </template>
-        </q-table>
-      </div>
-
-      <!-- next -->
-
-      <div class="q-pa-sm col-12 col-md-5">
+      <div class="q-pa-sm col-12 col-md-8">
         <q-table
           :rows="rowsCustomer"
           :columns="columns"
@@ -338,6 +216,7 @@ export default {
           binary-state-sort
         >
           <template v-slot:top>
+            <div class="q-mr-sm q-mb-sm"><syncCustomerData /></div>
             <div class="q-mr-sm q-mb-sm">
               <AddCustomer :rowsCustomer="rowsCustomer" />
             </div>
@@ -386,93 +265,41 @@ export default {
     </div>
     <br />
 
-    <div row class="row justify-center">
-      <div
-        style="border-radius: 5px"
-        class="col-12 bg-white col-md-4 q-pa-md q-ma-sm"
-      >
-        <Pie />
+    <div class="q-pa-md row justify-center">
+      <div class="q-pa-sm col-12 col-md-6">
+        <q-table
+          :rows="rowsCustomer"
+          :columns="columns"
+          row-key="id"
+          v-model:pagination="pagination"
+          :loading="loading"
+          :filter="filter"
+          @request="onRequest"
+          binary-state-sort
+        >
+          <template v-slot:top>
+            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
+              <label class="text-h4 q-ma-md">Inline Edit Crud Table</label>
+            </div>
+          </template>
+
+          <br />
+          <br />
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td key="contactPerson" :props="props">
+                {{ props.row.attributes.contactPerson }}
+              </q-td>
+
+              <q-td key="contactNo" :props="props">
+                {{ props.row.attributes.contactNo }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
       </div>
 
-      <div
-        style="border-radius: 5px"
-        class="col-12 bg-white col-md-4 q-pa-md q-ma-sm"
-      >
-        <AreaChart />
-      </div>
-      <div
-        style="border-radius: 5px"
-        class="col-12 bg-white col-md-3 q-pa-md q-ma-sm"
-      >
-        <Doughnut />
-      </div>
+      <!-- next -->
     </div>
-
-    <div row class="row justify-center">
-      <div
-        style="border-radius: 5px"
-        class="col-12 bg-white col-md-6 q-pa-md q-ma-sm"
-      >
-        <Line />
-      </div>
-
-      <div
-        style="border-radius: 5px"
-        class="col-12 bg-white col-md-5 q-pa-md q-ma-sm"
-      >
-        <Bar />
-      </div>
-    </div>
-
-    <!-- <div align="center" class="q-pa-md row items-start q-gutter-md">
-      <q-card align="center" class="my-card" @click="newCustomer = true">
-        <q-card-section class="text-black">
-          <div class="text-h6">NEW Customer</div>
-          <div class="text-subtitle2">Total = 5</div>
-          <q-icon name="person" color="primary" size="4rem" />
-        </q-card-section>
-
-        <q-separator />
-      </q-card>
-
-      <q-card align="center" class="my-card">
-        <q-card-section class="text-black">
-          <div class="text-h6">
-            Returning Customer (No transaction w/in 3 years)
-          </div>
-          <q-icon name="warning" color="primary" size="4rem" />
-          <div class="q-pa-md" style="max-width: 350px">
-            <q-list bordered separator>
-              <q-item clickable v-ripple>
-                <q-item-section>Trinmar</q-item-section>
-              </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  <q-item-label>John Doe</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable v-ripple>
-                <q-item-section>
-                  <q-item-label>Juan Dela Cruz</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-        </q-card-section>
-        <q-separator />
-      </q-card>
-    </div> -->
   </div>
 </template>
-<style>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

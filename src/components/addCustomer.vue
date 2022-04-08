@@ -1,10 +1,10 @@
 <template>
   <div>
     <q-btn
-      label="Add New Customer"
+      label="New Item"
       @click="opened"
       icon="add"
-      color="primary"
+      color="secondary"
       unelevated
     />
     <q-dialog v-model="addCustomerModal">
@@ -12,7 +12,7 @@
         <!-- {{ rowsCustomer }} -->
         <q-form ref="customerForm" @submit="onSubmit" @reset="onReset">
           <q-card style="width: 500px">
-            <q-card-section class="bg-primary text-white">
+            <q-card-section class="bg-secondary text-white">
               <div class="text-h6">Add New Customer</div>
             </q-card-section>
             <q-card-section padding>
@@ -129,7 +129,6 @@
                     (val && val.length > 0) || 'Please enter contact number',
                 ]"
               />
-
               <q-input
                 color="black"
                 v-model="email"
@@ -144,6 +143,8 @@
                 ]"
               />
 
+              <br />
+
               <q-select
                 label="Industry"
                 transition-show="flip-up"
@@ -156,7 +157,6 @@
                 lazy-rules
                 :rules="[(val) => !!val || 'Please enter industry']"
               />
-              <br />
               <q-select
                 outlined
                 dense
@@ -174,7 +174,7 @@
 
             <q-card-actions align="right" class="bg-white text-black">
               <q-btn
-                color="grey"
+                color="blue-grey-6"
                 label="Cancel"
                 type="reset"
                 v-close-popup
@@ -183,7 +183,7 @@
               />
               <q-btn
                 unelevated
-                color="primary"
+                color="secondary"
                 type="submit"
                 label="Save"
                 class="col"
