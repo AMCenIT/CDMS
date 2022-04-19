@@ -132,6 +132,18 @@
               <q-item-label>CRUD Customer </q-item-label>
             </q-item-section>
           </q-item>
+          <q-item
+            @click="$router.push('/MainLayout/Transaction')"
+            v-ripple
+            clickable
+          >
+            <q-item-section avatar>
+              <q-icon color="secondary" name="work" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Transaction</q-item-label>
+            </q-item-section>
+          </q-item>
 
           <q-separator />
           <q-expansion-item

@@ -20,6 +20,13 @@ const routes = [
     },
     children: [
       {
+        path: "Transaction",
+        component: () => import("pages/Transaction.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: "Customer",
         component: () => import("pages/Customer.vue"),
         meta: {
