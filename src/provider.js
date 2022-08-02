@@ -1,4 +1,5 @@
 import { api, aiosapi, oneshop } from "boot/axios";
+import { getTransitionRawChildren } from "vue";
 
 const loginApiAios = async function () {
   await aiosapi
@@ -12,9 +13,26 @@ const loginApiAios = async function () {
     });
 };
 
-const getCustomerDataaios = function () {
-  return aiosapi.get("users").then(function (users) {
+// get Customer AIOS
+
+const getCustomerDataaios = function (query) {
+  return aiosapi.get("users?" + query).then(function (users) {
     return users.data;
+  });
+};
+
+// POST customer AIOS
+
+const postCustomerDataaios = async function (customer) {
+  await aiosapi.post("customerSignUp", customer).then((res) => {
+    console.log("post data", res.data);
+  });
+};
+
+// Get aios all transaction
+const getTransactionDataaios = function (query) {
+  return aiosapi.get("transactions?" + query).then(function (transactions) {
+    return transactions.data;
   });
 };
 // Oneshop
@@ -23,6 +41,22 @@ const getCustomerDataOneShop = function () {
     return customers.data;
   });
 };
+
+// Oneshop request
+const getRequestDataOneShop = function (query) {
+  console.log("ONEEEe", query);
+  return oneshop.get("requests?" + query).then(function (request) {
+    return request.data;
+  });
+};
+// Oneshop via table
+const getCustomerDataOneShopTable = function (query) {
+  return oneshop.get("customers?" + query).then(function (customers) {
+    console.log("oneshop query ", customers.data);
+    return customers.data;
+  });
+};
+
 const getCustomerData = function (query) {
   return api.get("/api/customers?" + query).then(function (customers) {
     return customers;
@@ -84,6 +118,32 @@ const getType = function () {
   });
 };
 
+// Searh API
+const searhAPI = function (query) {
+  return api.get("api/custumers?" + query).then(function (searchdata) {
+    return searchdata.data.data;
+  });
+};
+
+// Email Exist
+const existEmail = function (email) {
+  return api
+    .get(
+      "http://10.10.120.19:1336/api/customers?filters[displayName][$eq]" + email
+    )
+    .then(function (response) {
+      return response.data.data;
+    });
+};
+
+export const postCustomerDataaiosApi = (data) => {
+  return postCustomerDataaios(data);
+};
+
+export const validateEmails = (query) => {
+  return existEmail(query);
+};
+
 export const loginAios = () => {
   return loginApiAios();
 };
@@ -91,9 +151,14 @@ export const loginAios = () => {
 export const getAllCustomerData = (query) => {
   return getCustomerData(query);
 };
+// aios Customer
+export const getCustomerDataAllaios = (query) => {
+  return getCustomerDataaios(query);
+};
 
-export const getCustomerDataAllaios = () => {
-  return getCustomerDataaios();
+// AIOS transactions
+export const getTransactionDataAllaios = (query) => {
+  return getTransactionDataaios(query);
 };
 
 export const getAllCustomerDataOneShop = () => {
@@ -121,4 +186,16 @@ export const getIndutries = () => {
 
 export const getAllType = () => {
   return getType();
+};
+
+export const getQueryCustomerDataOneShopTable = (query) => {
+  return getCustomerDataOneShopTable(query);
+};
+
+export const getALLOneShopRequestDataOneShop = (query) => {
+  return getRequestDataOneShop(query);
+};
+
+export const getsearchAPI = (query) => {
+  return searhAPI(query);
 };

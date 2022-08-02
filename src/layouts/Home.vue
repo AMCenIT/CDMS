@@ -78,7 +78,6 @@ export default {
   },
   methods: {
     clickleftDrawerOpen() {
-      console.log("test");
       this.leftDrawerOpen = true;
     },
   },

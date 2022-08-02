@@ -40,6 +40,7 @@ export default {
       rowsPerPage: 5,
       rowsNumber: 0,
     });
+
     const rowsCustomer = ref([]);
     const originalRows = ref([]);
     const columns = ref([
@@ -55,6 +56,13 @@ export default {
         align: "center",
         label: "Contact Number",
         field: "contactNo",
+        sortable: true,
+      },
+      {
+        name: "email",
+        align: "center",
+        label: "Email",
+        field: "email",
         sortable: true,
       },
       {
@@ -80,7 +88,7 @@ export default {
     ) {
       const query = qs.stringify(
         {
-          populate: ["industry", "type"],
+          populate: ["industries", "types"],
           pagination: {
             start: startRow,
             limit: count,
@@ -92,7 +100,6 @@ export default {
       );
 
       const response = await getAllCustomerData(query);
-      console.log("responseresponse", response);
 
       return response.data;
     }
@@ -101,9 +108,8 @@ export default {
 
     async function onRequest(props) {
       const { page, rowsPerPage, sortBy, descending } = props.pagination;
-      const filter = props.filter;
 
-      console.log("FILTER", filter);
+      const filter = props.filter;
 
       loading.value = true;
 
@@ -128,10 +134,6 @@ export default {
       // clear out existing data and add new
       // customerInfoPromise.value = returnedData;
       rowsCustomer.value = returnedData.data.map((r) => r);
-      console.log(
-        "RETURN",
-        returnedData.data.map((r) => r)
-      );
 
       // don't forget to update local pagination object
 
@@ -223,6 +225,18 @@ export default {
 
             <q-space />
             <div>
+              <!-- <q-btn-toggle
+                v-model="model"
+                spread
+                no-caps
+                toggle-color="primary"
+                color="white"
+                text-color="black"
+                :options="[
+                  { label: 'Option 1', value: 'one' },
+                  { label: 'Option 2', value: 'two' },
+                ]"
+              /> -->
               <q-input
                 borderless
                 dense
@@ -266,7 +280,7 @@ export default {
     <br />
 
     <div class="q-pa-md row justify-center">
-      <div class="q-pa-sm col-12 col-md-6">
+      <div class="q-pa-sm col-12 col-md-8">
         <q-table
           :rows="rowsCustomer"
           :columns="columns"
@@ -279,7 +293,7 @@ export default {
         >
           <template v-slot:top>
             <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
-              <label class="text-h4 q-ma-md">Inline Edit Crud Table</label>
+              <label class="text-h4 q-ma-md">Inline Edit Customer</label>
             </div>
           </template>
 
@@ -294,6 +308,10 @@ export default {
               <q-td key="contactNo" :props="props">
                 {{ props.row.attributes.contactNo }}
               </q-td>
+
+              <q-td key="email" :props="props">
+                {{ props.row.attributes.email }}
+              </q-td>
             </q-tr>
           </template>
         </q-table>
@@ -303,3 +321,8 @@ export default {
     </div>
   </div>
 </template>
+
+<style lang="sass" scoped>
+.my-custom-toggle
+  border: 1px solid #027be3
+</style>

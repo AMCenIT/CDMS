@@ -86,13 +86,13 @@ export default {
       //   field: "email",
       //   sortable: true,
       // },
-      {
-        name: "contactNo",
-        align: "center",
-        label: "Contact Number",
-        field: "contactNo",
-        sortable: true,
-      },
+      // {
+      //   name: "contactNo",
+      //   align: "center",
+      //   label: "Contact Number",
+      //   field: "contactNo",
+      //   sortable: true,
+      // },
       // {
       //   name: "address",
       //   align: "center",
@@ -100,11 +100,6 @@ export default {
       //   field: "address",
       //   sortable: true,
       // },
-      {
-        name: "action",
-        align: "center",
-        field: "action",
-      },
     ]);
 
     onBeforeMount(async function () {
@@ -121,9 +116,6 @@ export default {
       sortBy,
       descending
     ) {
-      console.log("startRow", startRow);
-      console.log("count", count);
-
       const query = qs.stringify(
         {
           populate: ["industry", "type"],
@@ -138,7 +130,6 @@ export default {
       );
 
       const response = await getAllCustomerData(query);
-      console.log("responseresponse", response);
       return response.data;
     }
 
@@ -171,10 +162,6 @@ export default {
       // clear out existing data and add new
       // customerInfoPromise.value = returnedData;
       rowsCustomer.value = returnedData.data.map((r) => r);
-      console.log(
-        "RETURN",
-        returnedData.data.map((r) => r)
-      );
 
       // don't forget to update local pagination object
 
@@ -264,7 +251,7 @@ export default {
               class="bg-secondary col text-white q-pa-md"
             >
               <q-icon name="report" size="1.4em" class="q-mr-md" />
-              <label>Customer Status</label>
+              <label>Returning Customer</label>
             </div>
           </template>
 
@@ -276,7 +263,7 @@ export default {
               <pre>{{ props.pageIndex + 1 }}</pre>
             </q-td> -->
               <q-td key="contactPerson" :props="props">
-                {{ props.row.attributes.contactPerson }}
+                <!-- {{ props.row.attributes.contactPerson }} -->
               </q-td>
             </q-tr>
           </template>
@@ -305,7 +292,7 @@ export default {
             >
               <q-icon name="report" size="1.4em" class="q-mr-md" />
 
-              <label rounded>Transaction Status</label>
+              <label rounded>Duplicated Data</label>
             </div>
           </template>
 
@@ -317,7 +304,7 @@ export default {
               <pre>{{ props.pageIndex + 1 }}</pre>
             </q-td> -->
               <q-td key="contactPerson" :props="props">
-                {{ props.row.attributes.contactPerson }}
+                <!-- {{ props.row.attributes.contactPerson }} -->
               </q-td>
             </q-tr>
           </template>
@@ -370,9 +357,9 @@ export default {
                 {{ props.row.attributes.contactPerson }}
               </q-td>
 
-              <q-td key="contactNo" :props="props">
+              <!-- <q-td key="contactNo" :props="props">
                 {{ props.row.attributes.contactNo }}
-              </q-td>
+              </q-td> -->
 
               <q-td key="action" :props="props">
                 <CustomerData :customer="props.row" />

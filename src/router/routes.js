@@ -20,6 +20,13 @@ const routes = [
     },
     children: [
       {
+        path: "Transaction",
+        component: () => import("pages/Transaction.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
         path: "Customer",
         component: () => import("pages/Customer.vue"),
         meta: {
@@ -42,22 +49,7 @@ const routes = [
       },
     ],
   },
-  // {
-  //   path: "/Home",
-  //   component: () => import("layouts/Home.vue"),
-  //   meta: {
-  //     requiresAuth: true,
-  //   },
-  //   children: [
-  //     {
-  //       path: "Customer",
-  //       component: () => import("pages/Customer.vue"),
-  //       meta: {
-  //         requiresAuth: true,
-  //       },
-  //     },
-  //   ],
-  // },
+
   {
     path: "/Login",
     component: () => import("layouts/Login.vue"),

@@ -8,7 +8,8 @@ import axios from "axios";
 // "export default () => {}" function below (which runs individually
 // for each client)
 const api = axios.create({ baseURL: "http://10.10.120.19:1336" });
-const aiosapi = axios.create({ baseURL: "https://aios-mirdc.ap.ngrok.io" });
+const aiosapi = axios.create({ baseURL: "https://aios-mirdc.ap.ngrok.io" }); // Production
+// const aiosapi = axios.create({ baseURL: "http://10.10.120.25:81" }); //  statging
 const oneshop = axios.create({ baseURL: "http://10.10.120.32:3030" });
 
 export default boot(({ app }) => {
