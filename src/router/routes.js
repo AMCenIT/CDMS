@@ -49,22 +49,7 @@ const routes = [
       },
     ],
   },
-  // {
-  //   path: "/Home",
-  //   component: () => import("layouts/Home.vue"),
-  //   meta: {
-  //     requiresAuth: true,
-  //   },
-  //   children: [
-  //     {
-  //       path: "Customer",
-  //       component: () => import("pages/Customer.vue"),
-  //       meta: {
-  //         requiresAuth: true,
-  //       },
-  //     },
-  //   ],
-  // },
+
   {
     path: "/Login",
     component: () => import("layouts/Login.vue"),

@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ customer.attributes.id }}
     <q-btn
       color="grey"
       v-for="size in ['xs']"
@@ -41,7 +42,7 @@
           </h4>
           <label align="right">
             <b>Account Type:</b>
-            {{ customer.attributes.type.data.attributes.label }}</label
+            {{ customer.attributes.types.data[0].attributes.label }}</label
           >
         </q-card-section>
 
@@ -55,11 +56,12 @@
             <b>Company Name:</b> {{ customer.attributes.displayName }}
           </div></q-item
         >
-        <!-- <q-item>
+        <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Industry: </b> {{ customer.industry.attributes.label }}
+            <b>Industry: </b>
+            {{ customer.attributes.industries.data[0].attributes.label }}
           </div></q-item
-        > -->
+        >
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
             <b>Email:</b> {{ customer.attributes.email }}
@@ -100,7 +102,7 @@
         >
           <q-card style="width: 500px">
             <q-card-section class="bg-secondary text-white">
-              <div class="text-h6">Add New Customer</div>
+              <div class="text-h6">Edit Customer</div>
             </q-card-section>
             <q-card-section padding>
               <q-input
@@ -159,7 +161,6 @@
                 label="Email"
                 outlined
                 dense
-                type="email"
                 square
               />
               <br />
@@ -288,7 +289,6 @@ export default {
     const deleteId = ref(null);
 
     async function onSubmit() {
-      console.log("edit");
       editCustomerModal.value = false;
     }
 
@@ -299,15 +299,13 @@ export default {
       tel_mobile.value = props.attributes.contactNo;
       email.value = props.attributes.email;
       industry.value = {
-        id: props.attributes.industry.data.id,
-        label: props.attributes.industry.data.attributes.label,
+        id: props.attributes.industries.data[0].id,
+        label: props.attributes.industries.data[0].attributes.label,
       };
       type.value = {
-        id: props.attributes.type.data.id,
-        label: props.attributes.type.data.attributes.label,
+        id: props.attributes.types.data[0].id,
+        label: props.attributes.types.data[0].attributes.label,
       };
-      console.log("INDUSTRY", props.attributes.type.data.id);
-      console.log("INDUSTRY", props.attributes.type.data.attributes.label);
 
       editCustomerModal.value = true;
       editId.value = props.id;
@@ -322,8 +320,8 @@ export default {
           contactNo: "",
           region: "",
           address: "",
-          type: {},
-          industry: {},
+          types: {},
+          industries: {},
         },
       };
       customerForm.value.validate().then((success) => {
@@ -333,8 +331,9 @@ export default {
           data.data.email = email.value;
           data.data.contactNo = tel_mobile.value;
           data.data.address = address.value;
-          data.data.type = type.value;
-          data.data.industry = industry.value;
+          data.data.types = type.value;
+          data.data.industries = industry.value;
+
           editCustomerData(editId.value, data);
           editCustomerModal.value = false;
           onReset();
@@ -358,7 +357,6 @@ export default {
     function deleteCustomer(props) {
       deleteId.value = props.id;
       deleteCustomerModal.value = true;
-      console.log(props);
     }
     function confirmed() {
       deleteCustomerData(deleteId.value);
@@ -371,7 +369,6 @@ export default {
     }
 
     function viewCustomer() {
-      console.log("view");
       viewCustomerModal.value = true;
     }
 

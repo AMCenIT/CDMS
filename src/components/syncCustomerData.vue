@@ -6,6 +6,7 @@ import {
   postCustomerData,
   getAllType,
   getIndutries,
+  validateEmails,
 } from "src/provider.js";
 import { useQuasar, QSpinnerGears } from "quasar";
 
@@ -36,6 +37,8 @@ const sectorid = ref(null);
 // oneshopdata
 const osindustry = ref("");
 const ostype = ref("");
+
+const existCompName = ref("");
 
 async function getTypes() {
   types.value = await getAllType();
@@ -70,16 +73,7 @@ async function getAllCustomerOneShop() {
 }
 
 async function syncDataBase() {
-  console.log("erjelrln");
-  $q.loading.show({
-    spinner: QSpinnerGears,
-    spinnerColor: "primary",
-    messageColor: "black",
-    message: "Checking Credentials",
-  });
-
   if (oneShopCustomer.value == null) {
-    console.log("null");
     $q.notify({
       color: "red",
       textColor: "white",
@@ -87,6 +81,13 @@ async function syncDataBase() {
       message: "No Data",
     });
   } else {
+    $q.loading.show({
+      spinner: QSpinnerGears,
+      spinnerColor: "secondary",
+      messageColor: "black",
+      message: "Syncing",
+    });
+
     type_options.value.map((type) => {
       typelabel.value = type.label;
       typeid.value = type.id;
@@ -94,6 +95,25 @@ async function syncDataBase() {
       sector_options.value.map((sector) => {
         sectorlabel.value = sector.label;
         sectorid.value = sector.id;
+
+        // const qs = require("qs");
+        // const query = qs.stringify(
+        //   {
+        //     $eq: company_name.value,
+        //   },
+        //   {
+        //     encodeValuesOnly: true,
+        //   }
+        // );
+        // const response = await validateEmails(query);
+        // console.log("displayname response", response);
+
+        // response.forEach((element) => {
+        //   let attrObj = element.attributes;
+        //   existCompName.value = attrObj.displayName;
+        //   console.log("existCompName", existCompName.value);
+        //   return existCompName.value;
+        // });
 
         oneShopCustomer.value.data.map((oscustomer) => {
           account_type.value = oscustomer.intExt;
@@ -103,6 +123,7 @@ async function syncDataBase() {
           company_name.value = oscustomer.company;
           displayName.value = oscustomer.contact;
           contactNo.value = oscustomer.telno;
+          email.value = oscustomer.email;
           address.value =
             oscustomer.street +
             " " +
@@ -117,6 +138,25 @@ async function syncDataBase() {
 
           // console.log(osindustry.value);
 
+          // const qs = require("qs");
+          // const query = qs.stringify(
+          //   {
+          //     $eq: company_name.value,
+          //   },
+          //   {
+          //     encodeValuesOnly: true,
+          //   }
+          // );
+          // const response = await validateEmails(query);
+          // console.log("displayname response", response);
+
+          // response.forEach((element) => {
+          //   let attrObj = element.attributes;
+          //   existCompName.value = attrObj.displayName;
+          //   console.log("existCompName", existCompName.value);
+          //   return existCompName.value;
+          // });
+
           const data = {
             data: {
               displayName: "",
@@ -127,16 +167,17 @@ async function syncDataBase() {
               province: "",
               municipality: "",
               address: "",
-              type: {
+              types: {
                 label: " ",
-                id: "",
+                id: null,
               },
-              industry: {
+              industries: {
                 label: " ",
                 id: null,
               },
             },
           };
+
           if (
             account_type.value == typelabel.value &&
             sectorlabel.value == osindustry.value
@@ -149,20 +190,16 @@ async function syncDataBase() {
             data.data.province = province.value;
             data.data.municipality = municipality.value;
             data.data.address = address.value;
-            data.data.type.id = typeid.value;
-            data.data.type.label = typelabel.value;
-            data.data.industry.id = sectorid.value;
-            data.data.industry.label = sectorlabel.value;
+            data.data.types.id = typeid.value;
+            data.data.types.label = typelabel.value;
+            data.data.industries.id = sectorid.value;
+            data.data.industries.label = sectorlabel.value;
 
-            postCustomerData(data);
+            // postCustomerData(data);
 
-            console.log(
-              "Data",
-              count.value++,
-              data.data.displayName,
-              data.data.type.label
-            );
+            // console.log("Data", count.value++, data);
           }
+
           $q.loading.hide();
           $q.notify({
             color: "green-4",
@@ -181,6 +218,7 @@ onMounted(() => {
   getTypes();
   getSectors();
   getAllCustomerOneShop();
+  // syncDataBase();
 });
 </script>
 

@@ -101,7 +101,7 @@
 
           <q-item @click="$router.push('/MainLayout/Home')" v-ripple clickable>
             <q-item-section avatar>
-              <q-icon color="secondary" name="dashboard" />
+              <q-icon color="secondary" name="home" />
             </q-item-section>
             <q-item-section>
               <q-item-label>Home</q-item-label>
@@ -113,7 +113,7 @@
             clickable
           >
             <q-item-section avatar>
-              <q-icon color="secondary" name="info" />
+              <q-icon color="secondary" name="dashboard" />
             </q-item-section>
             <q-item-section>
               <q-item-label>Customer Infomation</q-item-label>
@@ -141,7 +141,7 @@
               <q-icon color="secondary" name="work" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>Transaction</q-item-label>
+              <q-item-label>Customer per System</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -151,7 +151,7 @@
             icon="library_books"
             label="Others"
           >
-            <q-item
+            <!-- <q-item
               v-ripple
               clickable
               @click="$router.push('/MainLayout/Home')"
@@ -175,7 +175,7 @@
               <q-item-section>
                 <q-item-label>Analytics</q-item-label>
               </q-item-section>
-            </q-item>
+            </q-item> -->
 
             <q-item
               v-ripple
@@ -187,6 +187,19 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label>Report</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              v-ripple
+              clickable
+              @click="$router.push('/MainLayout/Home')"
+            >
+              <q-item-section avatar>
+                <q-icon color="grey" name="notebook" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Logs</q-item-label>
               </q-item-section>
             </q-item>
           </q-expansion-item>

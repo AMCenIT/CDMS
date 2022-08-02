@@ -135,12 +135,8 @@
                 label="Email"
                 outlined
                 dense
-                type="email"
                 square
                 lazy-rules
-                :rules="[
-                  (val) => !!val || 'Please enter a valid email address',
-                ]"
               />
 
               <br />
@@ -198,7 +194,12 @@
 <script>
 import { ref, onMounted } from "vue";
 import { getAllType, getIndutries, postCustomerData } from "src/provider.js";
-import { useQuasar } from "quasar";
+import { useQuasar, uid } from "quasar";
+import {
+  getAllCustomerData,
+  validateEmails,
+  postCustomerDataaiosApi,
+} from "src/provider.js";
 
 export default {
   props: {
@@ -234,6 +235,9 @@ export default {
 
     const $q = useQuasar();
 
+    const existCompany = ref("");
+    const customerExist = ref([]);
+
     function opened() {
       addCustomerModal.value = true;
     }
@@ -262,6 +266,13 @@ export default {
       });
     }
 
+    async function getCustomer() {
+      customerExist.value = await getAllCustomerData();
+      customerExist.value.data.data.forEach((element) => {
+        let attrObj = element.attributes.email;
+      });
+    }
+
     async function onSubmit() {
       const data = {
         data: {
@@ -273,18 +284,53 @@ export default {
           province: "",
           municipality: "",
           address: "",
-          type: {
+          types: {
             id: " ",
             label: " ",
           },
-          industry: {
+          industries: {
             id: " ",
             label: " ",
           },
         },
       };
+
+      const AiosData = {
+        company_name: "",
+        first_name: "",
+        last_name: "",
+        email: "",
+        mobile: "",
+        state_province: "",
+        house_bldg_st: "",
+        city_municipality: "",
+        brgy_district: "",
+        address: "",
+        account_type: "",
+        sector: "",
+        email_confirmed: false,
+        system_user_type: "Customer",
+        password: "",
+      };
+
+      const qs = require("qs");
+      const query = qs.stringify(
+        {
+          $eq: company_name.value,
+        },
+        {
+          encodeValuesOnly: true,
+        }
+      );
+      const response = await validateEmails(query);
+      response.forEach((element) => {
+        let attrObj = element.attributes;
+        existCompany.value = attrObj.displayName;
+        console.log("existCompany", existCompany.value);
+      });
+
       customerForm.value.validate().then((success) => {
-        if (success) {
+        if (success && company_name.value != existCompany.value) {
           data.data.displayName = company_name.value;
           data.data.contactPerson = first_name.value + " " + last_name.value;
           data.data.email = email.value;
@@ -302,11 +348,54 @@ export default {
             region.value +
             " " +
             province.value;
-          data.data.type.id = type.value.id;
-          data.data.type.label = type.value.label;
-          data.data.industry.id = industry.value.id;
-          data.data.industry.label = industry.value.label;
+          data.data.types.id = type.value.id;
+          data.data.types.label = type.value.label;
+          data.data.industries.id = industry.value.id;
+          data.data.industries.label = industry.value.label;
           postCustomerData(data);
+
+          // company_name: "",
+          //     first_name: "",
+          //     last_name: "",
+          //     email: "",
+          //     mobile: "",
+          //     state_province: "",
+          //     house_bldg_st: "",
+          //     city_municipality: "",
+          //     brgy_district: "",
+          //     address: "",
+          //     account_type: "",
+          //     sector: "",
+          //     email_confirmed: false,
+          //     system_user_type: "Customer",
+          //     password: "aios2022",
+          AiosData.company_name = company_name.value;
+          AiosData.first_name = first_name.value;
+          AiosData.last_name = last_name.value;
+          AiosData.email = email.value;
+          AiosData.mobile = tel_mobile.value;
+          AiosData.state_province = province.value;
+          AiosData.house_bldg_st = street.value;
+          AiosData.brgy_district = barangay.value;
+          AiosData.city_municipality = city_municipality.value;
+          AiosData.address =
+            street.value +
+            " " +
+            barangay.value +
+            " " +
+            city_municipality.value +
+            " " +
+            region.value +
+            " " +
+            province.value;
+          AiosData.account_type = industry.value.label;
+          AiosData.sector = industry.value.label;
+          AiosData.password = first_name.value + "AIOS" + "2022";
+
+          postCustomerDataaiosApi(AiosData);
+
+          // close the modal
+          console.log("AIOS DATA", AiosData);
           addCustomerModal.value = false;
 
           onReset();
@@ -321,7 +410,7 @@ export default {
             color: "red-5",
             textColor: "white",
             icon: "warning",
-            message: "Please check the fields.",
+            message: "The Customer is already exist!",
           });
         }
       });
@@ -343,6 +432,7 @@ export default {
     onMounted(() => {
       getTypes();
       getSectors();
+      getCustomer();
     });
 
     return {
@@ -370,6 +460,8 @@ export default {
       region,
       province,
       onReset,
+      existCompany,
+      customerExist,
     };
   },
 };
