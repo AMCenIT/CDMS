@@ -274,7 +274,7 @@ export default {
     }
 
     async function onSubmit() {
-      const data = {
+      const data = ref({
         data: {
           displayName: "",
           contactPerson: "",
@@ -293,7 +293,7 @@ export default {
             label: " ",
           },
         },
-      };
+      });
 
       const AiosData = {
         company_name: "",
@@ -326,19 +326,20 @@ export default {
       response.forEach((element) => {
         let attrObj = element.attributes;
         existCompany.value = attrObj.displayName;
-        console.log("existCompany", existCompany.value);
+        console.log("existCompany", attrObj.displayName);
       });
 
       customerForm.value.validate().then((success) => {
         if (success && company_name.value != existCompany.value) {
-          data.data.displayName = company_name.value;
-          data.data.contactPerson = first_name.value + " " + last_name.value;
-          data.data.email = email.value;
-          data.data.contactNo = tel_mobile.value;
-          data.data.region = region.value;
-          data.data.province = province.value;
-          data.data.municipality = city_municipality.value;
-          data.data.address =
+          data.value.data.displayName = company_name.value;
+          data.value.data.contactPerson =
+            first_name.value + " " + last_name.value;
+          data.value.data.email = email.value;
+          data.value.data.contactNo = tel_mobile.value;
+          data.value.data.region = region.value;
+          data.value.data.province = province.value;
+          data.value.data.municipality = city_municipality.value;
+          data.value.data.address =
             street.value +
             " " +
             barangay.value +
@@ -348,11 +349,11 @@ export default {
             region.value +
             " " +
             province.value;
-          data.data.types.id = type.value.id;
-          data.data.types.label = type.value.label;
-          data.data.industries.id = industry.value.id;
-          data.data.industries.label = industry.value.label;
-          postCustomerData(data);
+          data.value.data.types.id = type.value.id;
+          data.value.data.types.label = type.value.label;
+          data.value.data.industries.id = industry.value.id;
+          data.value.data.industries.label = industry.value.label;
+          postCustomerData(data.value);
 
           // company_name: "",
           //     first_name: "",
@@ -369,33 +370,33 @@ export default {
           //     email_confirmed: false,
           //     system_user_type: "Customer",
           //     password: "aios2022",
-          AiosData.company_name = company_name.value;
-          AiosData.first_name = first_name.value;
-          AiosData.last_name = last_name.value;
-          AiosData.email = email.value;
-          AiosData.mobile = tel_mobile.value;
-          AiosData.state_province = province.value;
-          AiosData.house_bldg_st = street.value;
-          AiosData.brgy_district = barangay.value;
-          AiosData.city_municipality = city_municipality.value;
-          AiosData.address =
-            street.value +
-            " " +
-            barangay.value +
-            " " +
-            city_municipality.value +
-            " " +
-            region.value +
-            " " +
-            province.value;
-          AiosData.account_type = industry.value.label;
-          AiosData.sector = industry.value.label;
-          AiosData.password = first_name.value + "AIOS" + "2022";
+          // AiosData.company_name = company_name.value;
+          // AiosData.first_name = first_name.value;
+          // AiosData.last_name = last_name.value;
+          // AiosData.email = email.value;
+          // AiosData.mobile = tel_mobile.value;
+          // AiosData.state_province = province.value;
+          // AiosData.house_bldg_st = street.value;
+          // AiosData.brgy_district = barangay.value;
+          // AiosData.city_municipality = city_municipality.value;
+          // AiosData.address =
+          //   street.value +
+          //   " " +
+          //   barangay.value +
+          //   " " +
+          //   city_municipality.value +
+          //   " " +
+          //   region.value +
+          //   " " +
+          //   province.value;
+          // AiosData.account_type = industry.value.label;
+          // AiosData.sector = industry.value.label;
+          // AiosData.password = first_name.value + "AIOS" + "2022";
 
-          postCustomerDataaiosApi(AiosData);
+          // postCustomerDataaiosApi(AiosData);
 
-          // close the modal
-          console.log("AIOS DATA", AiosData);
+          // // close the modal
+          // console.log("AIOS DATA", AiosData);
           addCustomerModal.value = false;
 
           onReset();

@@ -511,6 +511,254 @@ export default {
 
 <template>
   <div class="q-pa-md bg-blue-grey-6">
+    <!-- <div class="col-12">
+      <q-expansion-item
+        class="shadow-1 overflow-hidden"
+        style="
+          font-size: 3rem;
+          line-height: 3.125rem;
+          letter-spacing: normal;
+          margin-bottom: 20px;
+        "
+        icon="perm_identity"
+        label="CUSTOMERS DATA TABLE"
+        @show="startCounting"
+        @hide="stopCounting"
+        header-class="bg-secondary text-white"
+        expand-icon-class="text-white"
+      >
+        <q-card>
+          <q-card-section>
+            <q-table
+              v-model:pagination="pagination"
+              :loading="loading"
+              :filter="filter"
+              @request="onRequest"
+              binary-state-sort
+              hide-header
+              hide-bottom
+            >
+              <template v-slot:top>
+                <div
+                  class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+                >
+                  <label class="text-h4 q-ma-md">ULIMS</label>
+                </div>
+              </template>
+
+              <br />
+              <br />
+            </q-table>
+          </q-card-section>
+        </q-card>
+        <q-card>
+          <q-card-section>
+            <q-table
+              :rows="oneshopCustomer"
+              :columns="aioscolumns"
+              row-key="id"
+              v-model:pagination="ospagination"
+              :loading="loading"
+              :filter="filter"
+              @request="oneshoponRequest"
+              binary-state-sort
+            >
+              <template v-slot:top>
+                <div
+                  class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+                >
+                  <label class="text-h4 q-ma-md">One Shop</label>
+                </div>
+              </template>
+              <br />
+              <br />
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="companyname" :props="props">
+                    {{ props.row.company }}
+                  </q-td>
+
+                  <q-td key="contactPerson" :props="props">
+                    {{ props.row.contact }}
+                  </q-td>
+
+                  <q-td key="email" :props="props">
+                    {{ props.row.email }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </q-card-section>
+        </q-card>
+        <q-card>
+          <q-card-section>
+            <q-table
+              :rows="aiosCustomer"
+              :columns="aioscolumns"
+              row-key="id"
+              v-model:pagination="aiospagination"
+              :loading="loading"
+              :filter="filter"
+              @request="aiosonRequest"
+              binary-state-sort
+            >
+              <template v-slot:top>
+                <div
+                  class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+                >
+                  <label class="text-h4 q-ma-md">AIOS</label>
+                </div>
+              </template>
+
+              <br />
+              <br />
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="companyname" :props="props">
+                    {{ props.row.company_name }}
+                  </q-td>
+
+                  <q-td key="contactPerson" :props="props">
+                    {{ props.row.first_name }}
+                    <span>{{ props.row.last_name }}</span>
+                  </q-td>
+
+                  <q-td key="email" :props="props">
+                    {{ props.row.email }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </q-card-section>
+        </q-card>
+      </q-expansion-item>
+
+      <q-expansion-item
+        class="shadow-1 overflow-hidden"
+        style="font-size: 3rem; line-height: 3.125rem; letter-spacing: normal"
+        icon="perm_identity"
+        label="TRANSACTIONS TABLE"
+        @show="startCounting"
+        @hide="stopCounting"
+        header-class="bg-secondary text-white"
+        expand-icon-class="text-white"
+      >
+        <q-card>
+          <q-card-section>
+            <q-table
+              :loading="loading"
+              :filter="filter"
+              @request="onRequest"
+              binary-state-sort
+              hide-header
+              hide-bottom
+            >
+              <template v-slot:top>
+                <div
+                  class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+                >
+                  <label class="text-h4 q-ma-md">ULIMS Transaction</label>
+                </div>
+              </template>
+
+              <br />
+              <br />
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="item_name" :props="props">
+                    {{ props.row.item_name }}
+                  </q-td>
+
+                  <q-td key="contactNo" :props="props">
+                    {{ props.row.job_type }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </q-card-section>
+        </q-card>
+        <q-card>
+          <q-card-section>
+            <q-table
+              :rows="oneShopTransactions"
+              :columns="osrcolumns"
+              row-key="id"
+              v-model:pagination="osrpagination"
+              :loading="loading"
+              :filter="filter"
+              @request="oneshoprequestonRequest"
+              binary-state-sort
+            >
+              <template v-slot:top>
+                <div
+                  class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+                >
+                  <label class="text-h4 q-ma-md">One Shop Transaction</label>
+                </div>
+              </template>
+
+              <br />
+              <br />
+              <template v-slot:body="props">
+                <q-tr :props="props">
+                  <q-td key="item_name" :props="props">
+                    {{ props.row.customer.company }}
+                  </q-td>
+                  <q-td key="jobtype" :props="props">
+                    {{ props.row.jobtype }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </q-card-section>
+        </q-card>
+        <q-card>
+          <q-card-section>
+            <q-table
+              :rows="aiosTransactions"
+              :columns="columns"
+              row-key="id"
+              v-model:pagination="pagination"
+              :loading="loading"
+              :filter="filter"
+              @request="onRequest"
+              binary-state-sort
+            >
+              <template v-slot:top>
+                <div
+                  class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+                >
+                  <label class="text-h4 q-ma-md">AIOS Transaction</label>
+                </div>
+              </template>
+
+              <br />
+              <br />
+              <template v-slot:body="props">
+                <q-tr>
+                  <q-td>
+                    <div
+                      class="text-center column"
+                      v-for="(item, index) in props.row.items"
+                      :key="item.value"
+                    >
+                      <span
+                        ><strong>{{ index + 1 }}</strong
+                        >. {{ item.item_name }}</span
+                      >
+                    </div>
+                  </q-td>
+
+                  <q-td key="Job_type" :props="props">
+                    {{ props.row.job_type }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </q-card-section>
+        </q-card>
+      </q-expansion-item>
+    </div> -->
     <!-- Customer -->
     <div align="center" class="text-secondary text-weight-bolder shadow">
       <h3>CUSTOMERS DATA TABLE</h3>
@@ -529,8 +777,10 @@ export default {
           hide-bottom
         >
           <template v-slot:top>
-            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
-              <label class="text-h4 q-ma-md">ULIMS Customer</label>
+            <div
+              class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+            >
+              <label class="text-h4 q-ma-md">Physmet</label>
             </div>
           </template>
 
@@ -562,8 +812,10 @@ export default {
           binary-state-sort
         >
           <template v-slot:top>
-            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
-              <label class="text-h4 q-ma-md">One Shop </label>
+            <div
+              class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+            >
+              <label class="text-h4 q-ma-md">One Shop</label>
             </div>
           </template>
           <br />
@@ -599,10 +851,10 @@ export default {
           binary-state-sort
         >
           <template v-slot:top>
-            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
-              <label class="text-h4 q-ma-md"
-                >Amcen Integrated Online System</label
-              >
+            <div
+              class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+            >
+              <label class="text-h4 q-ma-md">AIOS</label>
             </div>
           </template>
 
@@ -645,8 +897,10 @@ export default {
           hide-bottom
         >
           <template v-slot:top>
-            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
-              <label class="text-h4 q-ma-md">ULIMS Transaction</label>
+            <div
+              class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+            >
+              <label class="text-h4 q-ma-md">Physmet Transaction</label>
             </div>
           </template>
 
@@ -680,7 +934,9 @@ export default {
           binary-state-sort
         >
           <template v-slot:top>
-            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
+            <div
+              class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+            >
               <label class="text-h4 q-ma-md">One Shop Transaction</label>
             </div>
           </template>
@@ -714,7 +970,9 @@ export default {
           binary-state-sort
         >
           <template v-slot:top>
-            <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
+            <div
+              class="text-secondary text-weight-bolder shadow-1 col q-ma-md text-center"
+            >
               <label class="text-h4 q-ma-md">AIOS Transaction</label>
             </div>
           </template>
@@ -722,9 +980,19 @@ export default {
           <br />
           <br />
           <template v-slot:body="props">
-            <q-tr :props="props">
-              <q-td key="item_name" :props="props">
-                {{ props.row.item_name }}
+            <!-- <pre>{{ props.row }}</pre> -->
+            <q-tr>
+              <q-td>
+                <div
+                  class="text-center column"
+                  v-for="(item, index) in props.row.items"
+                  :key="item.value"
+                >
+                  <span
+                    ><strong>{{ index + 1 }}</strong
+                    >. {{ item.item_name }}</span
+                  >
+                </div>
               </q-td>
 
               <q-td key="Job_type" :props="props">

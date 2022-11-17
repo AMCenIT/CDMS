@@ -14,8 +14,9 @@ import Bar from "src/components/Bar.vue";
 import Line from "src/components/Line.vue";
 import Pie from "src/components/Pie.vue";
 
-import { useQuasar } from "quasar";
+import { useQuasar, LocalStorage, SessionStorage } from "quasar";
 import { getAllCustomerData } from "src/provider.js";
+import { aiosapi } from "src/boot/axios";
 
 export default {
   components: {
@@ -130,6 +131,8 @@ export default {
       );
 
       const response = await getAllCustomerData(query);
+      console.log("erickpogi", response);
+      customerInfoPromise.value = response.data;
       return response.data;
     }
 
@@ -186,12 +189,16 @@ export default {
 
     onMounted(() => {
       loadAlldata();
+      $q.localStorage.set(customerInfoPromise.value);
+      const value = $q.localStorage.getItem(customerInfoPromise.value);
+      console.log("boboobo", value);
     });
 
     return {
       metaObj: ref(""),
       customerInfo,
       newCustomer: ref(false),
+      customerInfoPromise,
       duplicatedCustomer: ref(false),
       loading,
       filter,

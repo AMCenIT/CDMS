@@ -22,6 +22,7 @@
           v-if="!$q.screen.lt.md"
           clickable
           @click="$router.push('/MainLayout/Home')"
+          style="cursor: pointer"
         />
         <img
           src="~assets/cdms-logo.png"
@@ -29,6 +30,7 @@
           v-if="$q.screen.lt.md"
           clickable
           @click="$router.push('/MainLayout/Home')"
+          style="cursor: pointer"
         />
         <img src="~assets/logo.png" width="190" />
         <q-space />

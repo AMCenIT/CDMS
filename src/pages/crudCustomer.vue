@@ -48,7 +48,8 @@ export default {
         name: "contactPerson",
         align: "center",
         label: "Contact Person",
-        field: "contactPerson",
+        field: (row) => row.name,
+        format: (val) => `${val}`,
         sortable: true,
       },
       {
@@ -68,6 +69,7 @@ export default {
       {
         name: "action",
         align: "center",
+        label: "Actions",
         field: "action",
       },
     ]);
@@ -92,6 +94,9 @@ export default {
           pagination: {
             start: startRow,
             limit: count,
+            sort: {
+              id: -1,
+            },
           },
         },
         {
@@ -99,8 +104,12 @@ export default {
         }
       );
 
-      const response = await getAllCustomerData(query);
+      // if (filter) {
+      //   query.$search = filter;
+      // }
 
+      const response = await getAllCustomerData(query);
+      // console.log("response", response.data);
       return response.data;
     }
 
@@ -210,7 +219,7 @@ export default {
         <q-table
           :rows="rowsCustomer"
           :columns="columns"
-          row-key="id"
+          row-key="name"
           v-model:pagination="pagination"
           :loading="loading"
           :filter="filter"
@@ -267,6 +276,10 @@ export default {
                 {{ props.row.attributes.contactNo }}
               </q-td>
 
+              <q-td key="email" :props="props">
+                {{ props.row.attributes.email }}
+              </q-td>
+
               <q-td key="action" :props="props">
                 <CustomerData :customer="props.row" />
               </q-td>
@@ -284,7 +297,7 @@ export default {
         <q-table
           :rows="rowsCustomer"
           :columns="columns"
-          row-key="id"
+          row-key="name"
           v-model:pagination="pagination"
           :loading="loading"
           :filter="filter"
@@ -311,6 +324,9 @@ export default {
 
               <q-td key="email" :props="props">
                 {{ props.row.attributes.email }}
+              </q-td>
+              <q-td key="action" :props="props">
+                <CustomerData :customer="props.row" />
               </q-td>
             </q-tr>
           </template>
