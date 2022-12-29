@@ -126,18 +126,74 @@ const searhAPI = function (query) {
 };
 
 // Email Exist
-const existEmail = function (email) {
+const existCompany = function (company) {
   return api
     .get(
-      "http://10.10.120.19:1336/api/customers?filters[displayName][$eq]" + email
+      "http://10.10.120.19:1336/api/customers?filters[displayName][$eq]" +
+        company
     )
     .then(function (response) {
+      // console.log("test", response);
       return response.data.data;
     });
 };
 
+// For existed email
+const existEmail = function (email) {
+  return api
+    .get("http://10.10.120.19:1336/api/customers?filters[email][$eq]" + email)
+    .then(function (response) {
+      // console.log("test", response.data.data);
+      return response.data.data;
+    });
+};
+
+// For System Filtering
+const systemFilter = function (system) {
+  return api
+    .get("http://10.10.120.19:1336/api/customers?filters[system][$eq]" + system)
+    .then(function (response) {
+      // console.log("system data", response);
+      return response.data.data;
+    });
+};
+
+const searchAll = function (search) {
+  return api
+    .get("http://10.10.120.19:1336/api/customers?" + search)
+    .then(function (response) {
+      // console.log("response", response.data);
+      return response.data.data;
+    });
+};
+
+const systemDashboard = function (dashboard) {
+  return api
+    .get("http://10.10.120.19:1336/api/dashboard" + dashboard)
+    .then(function (response) {
+      console.log("response", response);
+      return response;
+    });
+};
+
+export const systemsDashboard = (query) => {
+  return systemDashboard(query);
+};
+
+export const systemsFilter = (query) => {
+  return systemFilter(query);
+};
+
+export const searchAllData = (query) => {
+  return searchAll(query);
+};
+
 export const postCustomerDataaiosApi = (data) => {
   return postCustomerDataaios(data);
+};
+
+export const validateCompany = (query) => {
+  return existCompany(query);
 };
 
 export const validateEmails = (query) => {

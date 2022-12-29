@@ -45,9 +45,9 @@ export default {
     const originalRows = ref([]);
     const columns = ref([
       {
-        name: "contactPerson",
+        name: "displayName",
         align: "center",
-        label: "Contact Person",
+        label: "Company Name",
         field: (row) => row.name,
         format: (val) => `${val}`,
         sortable: true,
@@ -227,7 +227,10 @@ export default {
           binary-state-sort
         >
           <template v-slot:top>
-            <div class="q-mr-sm q-mb-sm"><syncCustomerData /></div>
+            <div class="q-mr-sm q-mb-sm">
+              <syncCustomerData :customerCount="pagination.rowsNumber" />
+              <!-- v-if="pagination.rowsNumber" -->
+            </div>
             <div class="q-mr-sm q-mb-sm">
               <AddCustomer :rowsCustomer="rowsCustomer" />
             </div>
@@ -268,8 +271,8 @@ export default {
               <!-- <q-td key="index" :props="props">
               <pre>{{ props.pageIndex + 1 }}</pre>
             </q-td> -->
-              <q-td key="contactPerson" :props="props">
-                {{ props.row.attributes.contactPerson }}
+              <q-td key="displayName" :props="props">
+                {{ props.row.attributes.displayName }}
               </q-td>
 
               <q-td key="contactNo" :props="props">
@@ -314,7 +317,7 @@ export default {
           <br />
           <template v-slot:body="props">
             <q-tr :props="props">
-              <q-td key="contactPerson" :props="props">
+              <q-td key="displayName" :props="props">
                 {{ props.row.attributes.contactPerson }}
               </q-td>
 

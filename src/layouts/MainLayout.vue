@@ -38,6 +38,17 @@
         <q-space />
 
         <div class="q-gutter-sm row items-center no-wrap">
+          <q-btn flat round icon="notifications" @click="showNotif">
+            <q-badge
+              v-if="oneShopCustomerTotal + aiosUser.total - segregateDupli"
+              floating
+              color="red"
+              rounded
+              >{{
+                oneShopCustomerTotal + aiosUser.total - segregateDupli
+              }}</q-badge
+            >
+          </q-btn>
           <q-btn
             round
             flat
@@ -219,13 +230,27 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { useQuasar } from "quasar";
+import {
+  getAllCustomerDataOneShop,
+  getAllCustomerData,
+  getCustomerDataAllaios,
+} from "src/provider.js";
 
 export default {
   setup() {
+    const $q = useQuasar();
+    const qs = require("qs");
     const router = useRouter();
     const displayName = ref("");
     const userid = ref("");
     const leftDrawerOpen = ref(false);
+
+    const oneShopCustomer = ref([]);
+    const allCustomer = ref([]);
+    const oneShopCustomerTotal = ref(0);
+    const segregateDupli = ref([]);
+    const aiosUser = ref([]);
 
     const store = useStore();
     // userprofile getter
@@ -251,6 +276,55 @@ export default {
       router.push("/Login");
     }
 
+    async function getAllCustomerOneShop() {
+      oneShopCustomer.value = await getAllCustomerDataOneShop();
+      // console.log("oneShopCustomer.value", oneShopCustomer.value);
+      oneShopCustomerTotal.value = oneShopCustomer.value.data
+        .map(function (val, idx, arr) {
+          for (var i = 0; i < idx; i++) {
+            if (arr[i].company === val.company) {
+              val.isTrue = true;
+              return val;
+            }
+          }
+          val.isTrue = false;
+          return val;
+        })
+        .filter((d) => d.isTrue === false).length;
+
+      // console.log("oneShopCustomerTotal.value", oneShopCustomerTotal.value);
+    }
+
+    async function getAiosUser(startRow, count) {
+      const query = qs.stringify(
+        {
+          $skip: startRow,
+          $limit: count,
+        },
+
+        {
+          encodeValuesOnly: true,
+        }
+      );
+
+      aiosUser.value = await getCustomerDataAllaios(query);
+      // console.log("AIOS CUSTOMER RESPONSE", aiosUser.value.total);
+      return aiosUser.value;
+    }
+
+    async function getAllCustomerSynced() {
+      allCustomer.value = await getAllCustomerData();
+      segregateDupli.value = allCustomer.value.data.meta.pagination.total;
+      // console.log("allCustomer", segregateDupli.value);
+      // console.log("allCustomer.value", allCustomer.value.data.data);
+    }
+
+    onMounted(() => {
+      getAllCustomerOneShop();
+      getAllCustomerSynced();
+      getAiosUser();
+    });
+
     return {
       userid,
       logout,
@@ -260,8 +334,34 @@ export default {
       loginStatus,
       leftDrawerOpen,
       loginStatusAIOS,
+      oneShopCustomer,
+      allCustomer,
+      oneShopCustomerTotal,
+      segregateDupli,
+      getAiosUser,
+      aiosUser,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+      showNotif() {
+        if (
+          oneShopCustomerTotal.value +
+          aiosUser.value.total -
+          segregateDupli.value
+        ) {
+          $q.notify({
+            message:
+              "There's a new customer! Please sync the customer in Customer Page.",
+            icon: "announcement",
+            classes: "test",
+          });
+        } else {
+          $q.notify({
+            message: "No new customer as of now.",
+            icon: "announcement",
+            classes: "test",
+          });
+        }
       },
       background:
         "The Centralized Customer Database is a web-based and access-controlled information system that supports automated tasks, data reusability, data sharing, and a more productive workflow without disruption not only for MIRDC but also to the customers as well.",

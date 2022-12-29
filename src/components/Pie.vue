@@ -24,6 +24,9 @@ import {
   CategoryScale,
 } from "chart.js";
 
+import { getAllCustomerData } from "src/provider.js";
+import { onMounted, ref } from "vue";
+
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
 export default {
@@ -61,10 +64,28 @@ export default {
       default: () => [],
     },
   },
-  data() {
+  setup() {
+    const customerExist = ref([]);
+    const attrSystem = ref([]);
+    async function getCustomer() {
+      customerExist.value = await getAllCustomerData();
+      // customerExist.value.data.data.forEach((element) => {
+      //   let attrObj = element.attributes;
+      //   attrSystem.value.push({
+      //     label: element.attributes.system,
+      //   });
+      // });
+      // console.log("attrSystem.value", attrSystem.value);
+    }
+    onMounted(() => {
+      getCustomer();
+    });
     return {
+      attrSystem,
+      customerExist,
+      getCustomer,
       chartData: {
-        labels: ["VueJs", "EmberJs", "ReactJs", "AngularJs"],
+        labels: ["OneShop", "ULIMS", "AIOS", "PJOIS"],
         datasets: [
           {
             backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],

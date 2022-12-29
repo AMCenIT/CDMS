@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ customer.attributes.id }}
+    <!-- {{ customer.attributes.id }} -->
     <q-btn
       color="grey"
       v-for="size in ['xs']"
@@ -41,14 +41,14 @@
             {{ customer.attributes.contactPerson }}
           </h4>
           <label align="right">
-            <b>Account Type:</b>
+            <b>Account Type: </b>
             {{ customer.attributes.types.data[0].attributes.label }}</label
           >
         </q-card-section>
 
         <q-item>
           <label class="text-subtitle2 q-pa-sm"
-            ><b>CMDS Id:</b>{{ "00000" + customer.id }}</label
+            ><b>CMDS ID: </b>{{ "00000" + customer.id }}</label
           >
         </q-item>
         <q-item>
@@ -69,12 +69,12 @@
         >
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Contact Number:</b> {{ customer.attributes.contactNo }}
+            <b>Contact Number: </b> {{ customer.attributes.contactNo }}
           </div></q-item
         >
         <q-item>
           <div class="text-subtitle2 q-pa-sm">
-            <b>Address:</b>{{ customer.attributes.address }}
+            <b>Address: </b>{{ customer.attributes.address }}
           </div></q-item
         >
         <q-card-section> </q-card-section>
@@ -309,6 +309,7 @@ export default {
 
       editCustomerModal.value = true;
       editId.value = props.id;
+      // console.log("editCustomerModal", props.attributes);
     }
 
     async function onSubmitUpdateCustomer() {
