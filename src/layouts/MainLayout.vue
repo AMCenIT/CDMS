@@ -40,12 +40,21 @@
         <div class="q-gutter-sm row items-center no-wrap">
           <q-btn flat round icon="notifications" @click="showNotif">
             <q-badge
-              v-if="oneShopCustomerTotal + aiosUser.total - segregateDupli"
+              v-if="
+                physmetCustomer +
+                oneShopCustomerTotal +
+                aiosUser.total -
+                segregateDupli
+              "
               floating
               color="red"
               rounded
               >{{
-                oneShopCustomerTotal + aiosUser.total - segregateDupli
+                physmetCustomer +
+                oneShopCustomerTotal +
+                aiosUser.total -
+                segregateDupli +
+                24
               }}</q-badge
             >
           </q-btn>
@@ -221,6 +230,33 @@
     </q-drawer>
 
     <q-page-container>
+      <!-- <q-btn @click="getStartEndDate()" label="filter"></q-btn>
+    <q-input filled v-model="startDate" mask="date" :rules="['date']">
+      <template v-slot:append>
+        <q-icon name="event" class="cursor-pointer">
+          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+            <q-date v-model="startDate">
+              <div class="row items-center justify-end">
+                <q-btn v-close-popup label="Close" color="primary" flat />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input>
+    <q-input filled v-model="endDate" mask="date" :rules="['date']">
+      <template v-slot:append>
+        <q-icon name="event" class="cursor-pointer">
+          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+            <q-date v-model="endDate">
+              <div class="row items-center justify-end">
+                <q-btn v-close-popup label="Close" color="primary" flat />
+              </div>
+            </q-date>
+          </q-popup-proxy>
+        </q-icon>
+      </template>
+    </q-input> -->
       <router-view class="q-pa-md" />
     </q-page-container>
   </q-layout>
@@ -235,7 +271,9 @@ import {
   getAllCustomerDataOneShop,
   getAllCustomerData,
   getCustomerDataAllaios,
+  getALLOneShopRequestDataOneShop,
 } from "src/provider.js";
+import axios from "axios";
 
 export default {
   setup() {
@@ -251,6 +289,11 @@ export default {
     const oneShopCustomerTotal = ref(0);
     const segregateDupli = ref([]);
     const aiosUser = ref([]);
+
+    const startDate = ref("2022/02/01");
+    const endDate = ref("2019/02/01");
+
+    const physmetCustomer = ref("");
 
     const store = useStore();
     // userprofile getter
@@ -315,17 +358,60 @@ export default {
     async function getAllCustomerSynced() {
       allCustomer.value = await getAllCustomerData();
       segregateDupli.value = allCustomer.value.data.meta.pagination.total;
-      // console.log("allCustomer", segregateDupli.value);
+      console.log("allCustomer", segregateDupli.value);
       // console.log("allCustomer.value", allCustomer.value.data.data);
     }
 
-    onMounted(() => {
+    async function getPhysmetCustomerSynced() {
+      axios
+        .request({
+          method: "get",
+          baseURL: "http://10.10.120.32:1337/api/job-orders",
+          headers: {
+            Authorization:
+              "Bearer" +
+              "1a951bf72526c8dcf2abb2143458e612442d4814f1ddd9d6d2c58af3ead67d769c5115c63da7a633a1d8d6cfaaaa9fe4adfb62dafda09fc5cc083bea930035197c24f013c905ae5ca0884376fc0153cc419565f4209f27ae7c983fd340a6d963a371f5a1236f517ec038c633d0cad60754cefbb62247fe98b1d6bb1b40fc5f8a",
+          },
+        })
+        .then((response) => {
+          physmetCustomer.value = response.data.meta.pagination.total;
+          // console.log('erick response data', physmetCustomer.value)
+        });
+    }
+
+    // async function getStartEndDate() {
+    //   const query = qs.stringify(
+    //     {
+    //       // $skip: startRow,
+    //       // $limit: count,
+    //       created_at: {
+    //         $lte: endDate.value,
+    //         $gte: startDate.value,
+    //       },
+    //       // "customer.intExt": "External"
+    //       // created_at['$lte']: 1479664146607,
+    //       // created_at['$gte']: 1479664146607
+    //     },
+
+    //     {
+    //       encodeValuesOnly: true,
+    //     }
+    //   );
+    //   console.log("query",query)
+    //   const response = await getALLOneShopRequestDataOneShop(query);
+    //   console.log("response", response)
+    // }
+
+    onMounted(async () => {
       getAllCustomerOneShop();
       getAllCustomerSynced();
       getAiosUser();
+      getPhysmetCustomerSynced();
     });
 
     return {
+      physmetCustomer,
+      getPhysmetCustomerSynced,
       userid,
       logout,
       userLoggedin,
@@ -343,11 +429,18 @@ export default {
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      startDate,
+      endDate,
+
+      // getStartEndDate,
+
       showNotif() {
+        console.log("oneShopCustomerTotal.value", oneShopCustomerTotal.value);
         if (
           oneShopCustomerTotal.value +
           aiosUser.value.total -
-          segregateDupli.value
+          segregateDupli.value +
+          physmetCustomer.value
         ) {
           $q.notify({
             message:

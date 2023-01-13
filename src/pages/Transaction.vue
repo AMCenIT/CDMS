@@ -1,6 +1,6 @@
 <script>
 import { ref, onBeforeMount, onMounted, computed } from "vue";
-import { useQuasar } from "quasar";
+import { date, useQuasar } from "quasar";
 import {
   getCustomerDataAllaios,
   getTransactionDataAllaios,
@@ -14,6 +14,10 @@ export default {
     const qs = require("qs");
     const loading = ref(false);
     const asiosloading = ref(false);
+
+    const reOneshopReq = ref([]);
+
+    const dateFilter = ref([]);
 
     const length = ref("");
     const lengthaios = ref("");
@@ -41,6 +45,12 @@ export default {
     let timer;
     const rows = ref([]);
     const aiosrows = ref([]);
+
+    const startDate = ref("");
+    const endDate = ref("");
+
+    const intexModel = ref(null);
+    const options = ref(["Internal", "External", "Student"]);
 
     const pagination = ref({
       sortBy: "desc",
@@ -100,10 +110,10 @@ export default {
 
     const osrcolumns = ref([
       {
-        name: "item_name",
+        name: "company_name",
         align: "left",
-        label: "Item Name",
-        field: "item_name",
+        label: "Company Name",
+        field: "company_name",
         sortable: true,
       },
       {
@@ -204,7 +214,7 @@ export default {
       );
 
       const response = await getTransactionDataAllaios(query);
-      console.log("AIOS TRANSACTION RESPOSE", response);
+      // console.log("AIOS TRANSACTION RESPOSE", response);
       return response;
     }
 
@@ -275,7 +285,7 @@ export default {
       );
 
       const response = await getCustomerDataAllaios(query);
-      console.log("AIOS CUSTOMER RESPONSE", response);
+      // console.log("AIOS CUSTOMER RESPONSE", response);
       return response;
     }
 
@@ -308,10 +318,10 @@ export default {
       // clear out existing data and add new
       // customerInfoPromise.value = returnedData;
       aiosCustomer.value = returnedData.data.map((r) => r);
-      console.log(
-        "RETURN AIOS Customer",
-        returnedData.data.map((r) => r)
-      );
+      // console.log(
+      //   "RETURN AIOS Customer",
+      //   returnedData.data.map((r) => r)
+      // );
 
       // don't forget to update local pagination object
 
@@ -383,10 +393,10 @@ export default {
       // clear out existing data and add new
       // customerInfoPromise.value = returnedData;
       oneshopCustomer.value = returnedData.data.map((r) => r);
-      console.log(
-        "RETURN One shop Customer",
-        returnedData.data.map((r) => r)
-      );
+      // console.log(
+      //   "RETURN One shop Customer",
+      //   returnedData.data.map((r) => r)
+      // );
 
       // don't forget to update local pagination object
 
@@ -415,20 +425,32 @@ export default {
     // Aios customer table
 
     async function oneshopRequestfetchFromServer(startRow, count) {
-      const query = qs.stringify(
-        {
-          $skip: startRow,
-          $limit: count,
+      const query = {
+        created_at: {},
+        intExt: {
+          name: {},
+          code: {},
         },
-
-        {
-          encodeValuesOnly: true,
-        }
+        $skip: startRow,
+        $limit: count,
+      };
+      console.log("query", query);
+      if (intexModel.value) {
+        query.intExt.name = intexModel.value;
+      }
+      if (endDate.value) {
+        query.created_at.$lte = endDate.value;
+      }
+      if (startDate.value) {
+        query.created_at.$gte = startDate.value;
+      }
+      // if (intexModel.value) {
+      //   query.intExt.name.$nme = intexModel.value;
+      // }
+      oneShopTransactions.value = await getALLOneShopRequestDataOneShop(
+        qs.stringify(query)
       );
-
-      const response = await getALLOneShopRequestDataOneShop(query);
-      console.log("ONE SHOP REQ", response);
-      return response;
+      return oneShopTransactions.value;
     }
 
     // emulate 'SELECT count(*) FROM ...WHERE...'
@@ -450,7 +472,7 @@ export default {
       const startRow = (page - 1) * rowsPerPage;
 
       // fetch data from "server"
-      const returnedData = await oneshopRequestfetchFromServer(
+      reOneshopReq.value = await oneshopRequestfetchFromServer(
         startRow,
         fetchCount,
         filter,
@@ -459,15 +481,12 @@ export default {
       );
       // clear out existing data and add new
       // customerInfoPromise.value = returnedData;
-      oneShopTransactions.value = returnedData.data.map((r) => r);
-      console.log(
-        "RETURN One shop Customer",
-        returnedData.data.map((r) => r)
-      );
+      reOneshopReq.value = oneShopTransactions.value.data.map((r) => r);
+      console.log("reOneshopReq.value", reOneshopReq.value);
 
       // don't forget to update local pagination object
 
-      osrpagination.value.rowsNumber = returnedData.total;
+      osrpagination.value.rowsNumber = oneShopTransactions.value.total;
       osrpagination.value.page = page;
       osrpagination.value.rowsPerPage = rowsPerPage;
       osrpagination.value.sortBy = sortBy;
@@ -475,7 +494,7 @@ export default {
 
       // ...and turn of loading indicator
       loading.value = false;
-      length.value = returnedData.total;
+      length.value = reOneshopReq.value.total;
 
       // }, 1500);
     }
@@ -486,6 +505,30 @@ export default {
         filter: undefined,
       });
     }
+
+    // async function getStartEndDate() {
+    //   const query = qs.stringify(
+    //     {
+    //       // $skip: startRow,
+    //       // $limit: count,
+    //       created_at: {
+    //         $lte: endDate.value,
+    //         $gte: startDate.value,
+    //       },
+    //       // "customer.intExt": "External"
+    //       // created_at['$lte']: 1479664146607,
+    //       // created_at['$gte']: 1479664146607
+    //     },
+
+    //     {
+    //       encodeValuesOnly: true,
+    //     }
+    //   );
+    //   console.log("query", query);
+    //   dateFilter.value = await getALLOneShopRequestDataOneShop(query);
+    //   console.log("response", dateFilter.value);
+    //   return dateFilter.value;
+    // }
 
     onMounted(() => {
       asiosCustomerloadAlldata();
@@ -533,6 +576,19 @@ export default {
       columns,
       rows,
       aiosrows,
+      startDate,
+      endDate,
+
+      reOneshopReq,
+      dateFilter,
+
+      tab: ref("ulims"),
+
+      intexModel,
+      options,
+
+      oneshopRequestsloadAlldata,
+      // getStartEndDate,
 
       showLoading() {
         $q.loading.show({
@@ -697,146 +753,283 @@ export default {
         header-class="bg-secondary text-white"
         expand-icon-class="text-white"
       >
+        <div class="row items-center">
+          <div class="q-pa-md">
+            <div class="row items-center">
+              <q-input
+                filled
+                v-model="startDate"
+                mask="date"
+                :rules="['date']"
+                class="bg-white"
+                label="Start Date"
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date v-model="startDate">
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+              <q-input
+                filled
+                v-model="endDate"
+                mask="date"
+                :rules="['date']"
+                class="bg-white q-ml-md"
+                label="End Date"
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date v-model="endDate">
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+              <div class="bg-white q-ml-md">
+                <q-select
+                  outlined
+                  v-model="intexModel"
+                  @update:model-value="oneshopRequestsloadAlldata()"
+                  :options="options"
+                  label="Internal/External"
+                  clearable
+                  map-options
+                  style="width: 200px"
+                >
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        No results
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
+            </div>
+            <q-btn
+              @click="oneshopRequestsloadAlldata()"
+              color="secondary"
+              label="filter"
+            ></q-btn>
+          </div>
+        </div>
+
         <q-card>
-          <q-card-section>
-            <div class="q-pa-sm col-12 col-md-4">
-              <q-table
-                :loading="loading"
-                :filter="filter"
-                @request="onRequest"
-                binary-state-sort
-                hide-header
-                hide-bottom
-              >
-                <template v-slot:top>
-                  <div
-                    class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
-                  >
-                    <label class="text-h4 q-ma-md">ULIMS TRANSACTION</label>
-                  </div>
-                </template>
+          <q-tabs
+            v-model="tab"
+            dense
+            class="bg-teal shadow-2"
+            active-color="white"
+            indicator-color="black"
+            align="justify"
+            narrow-indicator
+          >
+            <q-tab name="ulims" label="ULIMS" />
+            <q-tab name="oneshop" label="OneShop" />
+            <q-tab name="aios" label="AIOS" />
+            <q-tab name="pjois" label="PJOIS" />
+          </q-tabs>
 
-                <br />
-                <br />
-                <template v-slot:body="props">
-                  <q-tr :props="props">
-                    <q-td key="item_name" :props="props">
-                      {{ props.row.item_name }}
-                    </q-td>
+          <q-separator />
 
-                    <q-td key="contactNo" :props="props">
-                      {{ props.row.job_type }}
-                    </q-td>
-                  </q-tr>
-                </template>
-              </q-table>
-            </div>
-          </q-card-section>
-        </q-card>
-        <q-card class="q-mt-lg">
-          <q-card-section>
-            <div class="q-pa-sm col-12 col-md-4">
-              <q-table
-                :rows="oneShopTransactions"
-                :columns="osrcolumns"
-                row-key="id"
-                v-model:pagination="osrpagination"
-                :loading="loading"
-                :filter="filter"
-                @request="oneshoprequestonRequest"
-                binary-state-sort
-              >
-                <template v-slot:top>
-                  <div
-                    class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
-                  >
-                    <label class="text-h4 q-ma-md">ONE SHOP TRANSACTION</label>
-                  </div>
-                </template>
+          <q-tab-panels v-model="tab" animated>
+            <q-tab-panel name="ulims">
+              <div class="q-pa-sm col-12 col-md-4">
+                <q-table
+                  :loading="loading"
+                  :filter="filter"
+                  @request="onRequest"
+                  binary-state-sort
+                >
+                  <template v-slot:top>
+                    <div
+                      class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
+                    >
+                      <label class="text-h4 q-ma-md">ULIMS TRANSACTION</label>
+                    </div>
+                  </template>
 
-                <br />
-                <br />
-                <template v-slot:body="props">
-                  <!-- <pre>{{ props.row }}</pre> -->
-                  <q-tr :props="props">
-                    <q-td key="item_name" :props="props">
-                      <span class="text-bold"
-                        >Company: {{ props.row.customer.company }}</span
+                  <br />
+                  <br />
+                  <template v-slot:body="props">
+                    <q-tr :props="props">
+                      <q-td key="item_name" :props="props">
+                        {{ props.row.item_name }}
+                      </q-td>
+
+                      <q-td key="contactNo" :props="props">
+                        {{ props.row.job_type }}
+                      </q-td>
+                    </q-tr>
+                  </template>
+                </q-table>
+              </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="oneshop">
+              <div class="q-pa-sm col-12 col-md-4">
+                <q-table
+                  :rows="reOneshopReq"
+                  :columns="osrcolumns"
+                  row-key="id"
+                  v-model:pagination="osrpagination"
+                  :loading="loading"
+                  @request="oneshoprequestonRequest"
+                  binary-state-sort
+                >
+                  <template v-slot:top>
+                    <div
+                      class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
+                    >
+                      <label class="text-h4 q-ma-md"
+                        >ONE SHOP TRANSACTION</label
                       >
-                      <div
-                        class="column"
-                        v-for="(item, index) in props.row.items"
-                        :key="item.value"
-                      >
-                        <span
-                          ><strong>{{ index + 1 }}</strong
-                          >. {{ item.item }}</span
+                    </div>
+                  </template>
+
+                  <br />
+                  <br />
+                  <template v-slot:body="props">
+                    <!-- <pre>{{ props.row }}</pre> -->
+                    <q-tr :props="props">
+                      <q-td key="company_name" :props="props">
+                        {{ props.row.customer.company }}
+                        <!-- <div
+                          class="column"
+                          v-for="(item, index) in props.row.items"
+                          :key="item.value"
                         >
-                      </div>
-                    </q-td>
-                    <q-td key="jobtype" :props="props">
-                      {{ props.row.jobtype }}
-                    </q-td>
-                    <q-td key="accounttype" :props="props">
-                      {{ props.row.intExt.name }}
-                    </q-td>
-                  </q-tr>
-                </template>
-              </q-table>
-            </div>
-          </q-card-section>
-        </q-card>
-        <q-card class="q-mt-lg">
-          <q-card-section>
-            <div class="q-pa-sm col-12 col-md-4">
-              <q-table
-                :rows="aiosTransactions"
-                :columns="columns"
-                row-key="id"
-                v-model:pagination="pagination"
-                :loading="loading"
-                :filter="filter"
-                @request="onRequest"
-                binary-state-sort
-              >
-                <template v-slot:top>
-                  <div
-                    class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
-                  >
-                    <label class="text-h4 q-ma-md">AIOS TRANSACTION</label>
-                  </div>
-                </template>
+                          <span
+                            ><strong>{{ index + 1 }}</strong
+                            >. {{ item.item }}</span
+                          >
+                        </div> -->
+                      </q-td>
+                      <q-td key="jobtype" :props="props">
+                        {{ props.row.jobtype }}
+                      </q-td>
+                      <q-td key="accounttype" :props="props">
+                        {{ props.row.intExt.name }}
+                      </q-td>
+                    </q-tr>
+                  </template>
+                </q-table>
+              </div>
+            </q-tab-panel>
 
-                <br />
-                <br />
-                <template v-slot:body="props">
-                  <!-- <pre>{{ props.row }}</pre> -->
-                  <q-tr>
-                    <q-td>
-                      <div
-                        class="column"
-                        v-for="(item, index) in props.row.items"
-                        :key="item.value"
-                      >
-                        <span
-                          ><strong>{{ index + 1 }}</strong
-                          >. {{ item.item_name }}</span
+            <q-tab-panel name="aios">
+              <div class="q-pa-sm col-12 col-md-4">
+                <q-table
+                  :rows="aiosTransactions"
+                  :columns="columns"
+                  row-key="id"
+                  v-model:pagination="pagination"
+                  :loading="loading"
+                  :filter="filter"
+                  @request="onRequest"
+                  binary-state-sort
+                >
+                  <template v-slot:top>
+                    <div
+                      class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
+                    >
+                      <label class="text-h4 q-ma-md">AIOS TRANSACTION</label>
+                    </div>
+                  </template>
+
+                  <br />
+                  <br />
+                  <template v-slot:body="props">
+                    <!-- <pre>{{ props.row }}</pre> -->
+                    <q-tr>
+                      <q-td>
+                        <div
+                          class="column"
+                          v-for="(item, index) in props.row.items"
+                          :key="item.value"
                         >
-                      </div>
-                    </q-td>
+                          <span
+                            ><strong>{{ index + 1 }}</strong
+                            >. {{ item.item_name }}</span
+                          >
+                        </div>
+                      </q-td>
 
-                    <q-td key="Job_type" :props="props">
-                      {{ props.row.job_type }}
-                    </q-td>
-                    <q-td key="account_type" :props="props">
-                      {{ props.row.requester.account_type }}
-                    </q-td>
-                  </q-tr>
-                  <!-- <pre>{{ props }}</pre> -->
-                </template>
-              </q-table>
-            </div>
-          </q-card-section>
+                      <q-td key="Job_type" :props="props">
+                        {{ props.row.job_type }}
+                      </q-td>
+                      <q-td key="account_type" :props="props">
+                        {{ props.row.requester.account_type }}
+                      </q-td>
+                    </q-tr>
+                    <!-- <pre>{{ props }}</pre> -->
+                  </template>
+                </q-table>
+              </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="pjois">
+              <div class="q-pa-sm col-12 col-md-4">
+                <q-table
+                  :loading="loading"
+                  :filter="filter"
+                  @request="onRequest"
+                  binary-state-sort
+                >
+                  <template v-slot:top>
+                    <div
+                      class="text-secondary text-weight-bolder shadow-1 col q-ma-md"
+                    >
+                      <label class="text-h4 q-ma-md">PJOIS TRANSACTION</label>
+                    </div>
+                  </template>
+
+                  <br />
+                  <br />
+                  <template v-slot:body="props">
+                    <q-tr :props="props">
+                      <q-td key="item_name" :props="props">
+                        {{ props.row.item_name }}
+                      </q-td>
+
+                      <q-td key="contactNo" :props="props">
+                        {{ props.row.job_type }}
+                      </q-td>
+                    </q-tr>
+                  </template>
+                </q-table>
+              </div>
+            </q-tab-panel>
+          </q-tab-panels>
         </q-card>
       </q-expansion-item>
     </div>

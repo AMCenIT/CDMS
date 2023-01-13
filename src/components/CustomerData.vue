@@ -34,61 +34,131 @@
       flat
       dense
     />
-    <q-dialog v-model="viewCustomerModal"
-      ><q-card style="width: 500px">
-        <q-card-section class="bg-secondary text-white">
-          <h4 class="text-uppercase q-pa-sm">
-            {{ customer.attributes.contactPerson }}
-          </h4>
-          <label align="right">
-            <b>Account Type: </b>
-            {{ customer.attributes.types.data[0].attributes.label }}</label
-          >
-        </q-card-section>
-
-        <q-item>
-          <label class="text-subtitle2 q-pa-sm"
-            ><b>CMDS ID: </b>{{ "00000" + customer.id }}</label
-          >
-        </q-item>
-        <q-item>
-          <div class="text-subtitle2 q-pa-sm">
-            <b>Company Name:</b> {{ customer.attributes.displayName }}
-          </div></q-item
-        >
-        <q-item>
-          <div class="text-subtitle2 q-pa-sm">
-            <b>Industry: </b>
-            {{ customer.attributes.industries.data[0].attributes.label }}
-          </div></q-item
-        >
-        <q-item>
-          <div class="text-subtitle2 q-pa-sm">
-            <b>Email:</b> {{ customer.attributes.email }}
-          </div></q-item
-        >
-        <q-item>
-          <div class="text-subtitle2 q-pa-sm">
-            <b>Contact Number: </b> {{ customer.attributes.contactNo }}
-          </div></q-item
-        >
-        <q-item>
-          <div class="text-subtitle2 q-pa-sm">
-            <b>Address: </b>{{ customer.attributes.address }}
-          </div></q-item
-        >
-        <q-card-section> </q-card-section>
-
-        <q-card-actions align="right" class="bg-white text-black row">
+    <q-dialog
+      v-model="viewCustomerModal"
+      persistent
+      :maximized="maximizedToggle"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+    >
+      <q-card class="bg-secondary text-white">
+        <q-bar>
+          <q-space />
           <q-btn
-            color="blue-grey-6"
-            label="Close"
-            type="reset"
-            v-close-popup
-            class="col"
-            unelevated
-          />
-        </q-card-actions>
+            dense
+            flat
+            icon="minimize"
+            @click="maximizedToggle = false"
+            :disable="!maximizedToggle"
+          >
+            <q-tooltip v-if="maximizedToggle" class="bg-white text-secondary"
+              >Minimize</q-tooltip
+            >
+          </q-btn>
+          <q-btn
+            dense
+            flat
+            icon="crop_square"
+            @click="maximizedToggle = true"
+            :disable="maximizedToggle"
+          >
+            <q-tooltip v-if="!maximizedToggle" class="bg-white text-secondary"
+              >Maximize</q-tooltip
+            >
+          </q-btn>
+          <q-btn dense flat icon="close" v-close-popup>
+            <q-tooltip class="bg-white text-secondary">Close</q-tooltip>
+          </q-btn>
+        </q-bar>
+
+        <q-card class="q-ma-xl">
+          <q-tabs
+            v-model="tab"
+            dense
+            class="bg-grey-3 text-grey-7"
+            active-color="secondary"
+            indicator-color="purple"
+            align="justify"
+          >
+            <q-tab name="details" label="Details" />
+            <q-tab name="orders" label="Orders" />
+          </q-tabs>
+
+          <q-tab-panels v-model="tab" animated class="bg-secondary text-white">
+            <q-tab-panel name="details">
+              <q-table
+                title="Customer Details"
+                hide-pagination
+                hide-bottom
+                hide-header
+                grid
+              >
+              </q-table>
+              <div>
+                <!-- {{ duplicateData._id }} -->
+                <!-- <pre>{{ duplicateData }}</pre> -->
+                <h5 class="text-dark">
+                  <strong>Company Name:</strong>
+                  {{ customer.attributes.displayName }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Contact Person:</strong>
+                  {{ customer.attributes.contactPerson }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Sector:</strong>
+                  {{ customer.attributes.industries.data[0].attributes.label }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Contact Number:</strong>
+                  {{ customer.attributes.contactNo }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Email:</strong> {{ customer.attributes.email }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Address:</strong>
+                  {{ customer.attributes.address }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Account Type:</strong>
+                  {{ customer.attributes.types.data[0].attributes.label }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Old/New:</strong>
+                  {{ customer.attributes.oldNew }}
+                </h5>
+              </div>
+            </q-tab-panel>
+
+            <q-tab-panel name="orders">
+              <q-table
+                grid
+                card-class="bg-dark text-white"
+                title="Customer Orders"
+                :rows="rowsView"
+                :columns="columnsView"
+                row-key="name"
+                :filter="filterView"
+                hide-header
+              >
+                <template v-slot:top-right>
+                  <q-input
+                    borderless
+                    dense
+                    debounce="300"
+                    v-model="filterView"
+                    placeholder="Search"
+                  >
+                    <template v-slot:append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </template>
+              </q-table>
+            </q-tab-panel>
+          </q-tab-panels>
+        </q-card>
       </q-card>
     </q-dialog>
 
@@ -430,6 +500,10 @@ export default {
       editCustomerModal,
       deleteCustomerModal,
       editId,
+
+      dialog: ref(false),
+      maximizedToggle: ref(true),
+      tab: ref("details"),
     };
   },
 };

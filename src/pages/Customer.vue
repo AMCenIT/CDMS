@@ -24,6 +24,7 @@ import {
 } from "src/provider.js";
 import { aiosapi } from "src/boot/axios";
 import exportFromJSON from "export-from-json";
+import { physmet } from "src/boot/axios";
 
 // const stringOptions = ["AIOS", "ULIMS", "ONESHOP", "PJOIS"];
 
@@ -279,6 +280,13 @@ export default {
       sortBy,
       descending
     ) {
+      //   const config = {
+      //   method: 'get',
+      //   url: `http://10.10.120.19:1336/api/customers?pagination[start]=${startRow}&pagination[limit]=${count}&[populate]=%2A&sort[0]=publishedAt%3Adesc&sort[1]=updatedAt%3Adesc`,
+      //   headers: {
+      //     'Authorization': 'Bearer ' + '881eadd7227fbec291e2f8bc157473e9c5f66b0a396a2c54edc60fff0f2a01c88c5ff46cef7757dd4da9a123c43b6dd2363fc2baf0405913e6e288eb547817d3d13cbfd41404385c811c28e3539677ce0fa5ad7ebd497ffd04e0618605f6602d25cd3230eb8dccd57cb308b96b6f1fa6f9063a4d7f09e56ee39b78a540418c01'
+      //   }
+      // }
       const query = {
         filters: {},
         populate: ["industry", "type"],
@@ -291,17 +299,18 @@ export default {
       //   encodeValuesOnly: true,
       // }
       // );
-      // console.log("query", query);
+      console.log("query", query);
       if (searchModel.value) {
         // console.log("searchModel", searchModel.value);
         query.filters.displayName = {
           $contains: searchModel.value,
         };
+        // config.url = config.url+`&filters[$or][0][displayName][$contains]=${searchModel.value}&filters[$or][1][contactPerson][$contains]=${searchModel.value}`
       } else {
         // console.log("Filter None");
       }
       if (model.value) {
-        console.log("Filter", model.value);
+        // console.log("model.value", model.value);
         query.filters.system = {
           $eq: model.value,
         };
@@ -799,7 +808,6 @@ export default {
               v-model="model"
               :options="options"
               @update:model-value="loadAlldata()"
-              @filter="filterFn"
               label="System Filter"
               clearable
               map-options
@@ -1023,21 +1031,23 @@ export default {
                 <!-- {{ duplicateData._id }} -->
                 <!-- <pre>{{ duplicateData }}</pre> -->
                 <h5 class="text-dark">
-                  Company Name: {{ selected_data.company }}
+                  <strong>Company Name:</strong> {{ selected_data.company }}
                 </h5>
                 <h5 class="text-dark">
-                  Contact Person: {{ selected_data.contact }}
+                  <strong>Contact Person:</strong> {{ selected_data.contact }}
                 </h5>
                 <h5 class="text-dark">
-                  Sector:
+                  <strong>Sector:</strong>
                   {{ sectors }}
                 </h5>
                 <h5 class="text-dark">
-                  Contact Number: {{ selected_data.telno }}
+                  <strong>Contact Number:</strong> {{ selected_data.telno }}
                 </h5>
-                <h5 class="text-dark">Email: {{ selected_data.email }}</h5>
                 <h5 class="text-dark">
-                  Address:
+                  <strong>Email:</strong> {{ selected_data.email }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Address:</strong>
                   {{
                     selected_data.street +
                     ", " +
@@ -1049,6 +1059,9 @@ export default {
                     ", " +
                     selected_data.region
                   }}
+                </h5>
+                <h5 class="text-dark">
+                  <strong>Account Type:</strong> {{ selected_data.intExt }}
                 </h5>
               </div>
             </q-tab-panel>

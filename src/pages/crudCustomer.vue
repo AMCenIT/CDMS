@@ -4,7 +4,7 @@ import AddCustomer from "src/components/addCustomer.vue";
 import CustomerData from "src/components/CustomerData.vue";
 import syncCustomerData from "src/components/syncCustomerData.vue";
 import { useQuasar } from "quasar";
-import { getAllCustomerData } from "src/provider.js";
+import { getAllCustomerData, searchAllData } from "src/provider.js";
 
 export default {
   components: {
@@ -27,6 +27,9 @@ export default {
 
     const customerInfo = ref([]);
     const customerInfoPromise = ref([]);
+
+    const searchModel = ref(null);
+    const searchQuery = ref("");
 
     const industries = ref([]);
     const rowCount = ref(10);
@@ -74,6 +77,37 @@ export default {
       },
     ]);
 
+    // const columnTrans = ref([
+    //    {
+    //     name: "displayName",
+    //     align: "center",
+    //     label: "Company Name",
+    //     field: (row) => row.name,
+    //     format: (val) => `${val}`,
+    //     sortable: true,
+    //   },
+    //   {
+    //     name: "contactNo",
+    //     align: "center",
+    //     label: "Contact Number",
+    //     field: "contactNo",
+    //     sortable: true,
+    //   },
+    //   {
+    //     name: "email",
+    //     align: "center",
+    //     label: "Email",
+    //     field: "email",
+    //     sortable: true,
+    //   },
+    //   {
+    //     name: "action",
+    //     align: "center",
+    //     label: "Actions",
+    //     field: "action",
+    //   },
+    // ])
+
     onBeforeMount(async function () {
       if (timer !== void 0) {
         clearTimeout(timer);
@@ -88,28 +122,33 @@ export default {
       sortBy,
       descending
     ) {
-      const query = qs.stringify(
-        {
-          populate: ["industries", "types"],
-          pagination: {
-            start: startRow,
-            limit: count,
-            sort: {
-              id: -1,
-            },
+      const query = {
+        filters: {},
+        populate: ["industries", "types"],
+        pagination: {
+          start: startRow,
+          limit: count,
+          sort: {
+            id: -1,
           },
         },
-        {
-          encodeValuesOnly: true,
-        }
-      );
+      };
+
+      if (searchModel.value) {
+        // console.log("searchModel", searchModel.value);
+        query.filters.displayName = {
+          $contains: searchModel.value,
+        };
+      } else {
+        // console.log("Filter None");
+      }
 
       // if (filter) {
       //   query.$search = filter;
       // }
 
-      const response = await getAllCustomerData(query);
-      // console.log("response", response.data);
+      const response = await getAllCustomerData(qs.stringify(query));
+      // console.log("response", query);
       return response.data;
     }
 
@@ -165,8 +204,26 @@ export default {
       });
     }
 
+    async function searchData() {
+      const qs = require("qs");
+      const query = {};
+      // {
+      //   searchModel.value
+      // },
+      // {
+      //   encodeValuesOnly: true,
+      // },
+      const response = await searchAllData(query);
+      response.forEach((element) => {
+        let attrObj = element.attributes;
+        searchQuery.value = attrObj.contactPerson;
+        // console.log("test", searchQuery.value);
+      });
+    }
+
     onMounted(() => {
       loadAlldata();
+      searchData();
     });
 
     return {
@@ -193,6 +250,8 @@ export default {
 
       columns,
       rows,
+      searchModel,
+      loadAlldata,
 
       showLoading() {
         $q.loading.show({
@@ -202,6 +261,17 @@ export default {
           $q.loading.hide();
           timer = void 0;
         }, 3000);
+      },
+
+      filterSearch() {
+        console.log("test", searchQuery.value);
+        return searchQuery.value.filter((entry) =>
+          searchQuery.value.length
+            ? Object.keys(searchQuery.value[0]).some((key) =>
+                ("" + entry[key]).toLowerCase().includes(searchModel.value)
+              )
+            : true
+        );
       },
     };
   },
@@ -215,11 +285,11 @@ export default {
     </div>
 
     <div class="q-pa-md row justify-center">
-      <div class="q-pa-sm col-12 col-md-8">
+      <div class="q-pa-sm col-12 col-md-12">
         <q-table
           :rows="rowsCustomer"
           :columns="columns"
-          row-key="name"
+          row-key="id"
           v-model:pagination="pagination"
           :loading="loading"
           :filter="filter"
@@ -250,11 +320,22 @@ export default {
                 ]"
               /> -->
               <q-input
+                filled
+                v-model="searchModel"
+                use-input
+                @update:model-value="loadAlldata()"
+                hide-selected
+                fill-input
+                input-debounce="300"
+                options-dense
+                :display-value="$q.lang.table.columns"
+                map-options
+                hint=""
                 borderless
                 dense
                 debounce="300"
+                @filter="filterSearch"
                 color="primary"
-                v-model="filter"
                 label="Search"
               >
                 <template v-slot:append>
@@ -297,7 +378,7 @@ export default {
 
     <div class="q-pa-md row justify-center">
       <div class="q-pa-sm col-12 col-md-8">
-        <q-table
+        <!-- <q-table
           :rows="rowsCustomer"
           :columns="columns"
           row-key="name"
@@ -309,7 +390,7 @@ export default {
         >
           <template v-slot:top>
             <div class="text-secondary text-weight-bolder shadow-1 col q-ma-md">
-              <label class="text-h4 q-ma-md">Inline Edit Customer</label>
+              <label class="text-h4 q-ma-md">Customer Transactions</label>
             </div>
           </template>
 
@@ -333,7 +414,7 @@ export default {
               </q-td>
             </q-tr>
           </template>
-        </q-table>
+        </q-table> -->
       </div>
 
       <!-- next -->

@@ -65,10 +65,52 @@ export default {
     },
   },
   setup() {
+    const chartData = ref({
+        labels: ["OneShop", "ULIMS", "AIOS", "PJOIS"],
+        datasets: [
+          {
+            backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],
+            data: [0, 0, 0, 0],
+          },
+        ],
+      })
+      const model = ref(null);
+      const qs = require("qs");
+
     const customerExist = ref([]);
     const attrSystem = ref([]);
-    async function getCustomer() {
-      customerExist.value = await getAllCustomerData();
+
+    const customerTotalOneShop = ref(0);
+    const customerTotalULIMS = ref(0);
+    const customerTotalAIOS = ref(0);
+    const customerTotalPJOIS = ref(0);
+
+    async function getCustomerOneShop(
+      startRow,
+      count,
+      filter,
+      sortBy,
+      descending
+    ) {
+
+      const query = {
+        filters: {},
+        populate: ["industry", "type"],
+        pagination: {
+          start: startRow,
+          limit: count,
+        },
+      }; 
+      if (chartData.value.labels) {
+        // console.log("query", query)
+        query.filters.system = {
+          $eq: chartData.value.labels[0]
+        }
+      }
+      
+      const customerExist = await getAllCustomerData(qs.stringify(query));
+     customerTotalOneShop.value = customerExist.data.meta.pagination.total
+      chartData.value.datasets[0].data = [customerTotalOneShop, customerTotalULIMS, customerTotalAIOS, customerTotalPJOIS]
       // customerExist.value.data.data.forEach((element) => {
       //   let attrObj = element.attributes;
       //   attrSystem.value.push({
@@ -76,27 +118,142 @@ export default {
       //   });
       // });
       // console.log("attrSystem.value", attrSystem.value);
+      // console.log("customerExist", customerExist)
+      // console.log("count oneshop", customerExist.data.data.)
+    }
+
+    async function getCustomerAIOS(
+      startRow,
+      count,
+      filter,
+      sortBy,
+      descending
+    ) {
+
+      const query = {
+        filters: {},
+        populate: ["industry", "type"],
+        pagination: {
+          start: startRow,
+          limit: count,
+        },
+      }; 
+      if (chartData.value.labels) {
+        // console.log("query2",query)
+        query.filters.system = {
+          $eq: chartData.value.labels[2]
+        }
+      }
+      
+      const customerExist = await getAllCustomerData(qs.stringify(query));
+      customerTotalAIOS.value = customerExist.data.meta.pagination.total
+      // customerExist.value.data.data.forEach((element) => {
+      //   let attrObj = element.attributes;
+      //   attrSystem.value.push({
+      //     label: element.attributes.system,
+      //   });
+      // });
+      // console.log("attrSystem.value", attrSystem.value);
+      // console.log("customerExist", customerExist)
+      // console.log("count oneshop", customerExist.data.data.)
+    }
+    
+    async function getCustomerPJOIS(
+      startRow,
+      count,
+      filter,
+      sortBy,
+      descending
+    ) {
+
+      const query = {
+        filters: {},
+        populate: ["industry", "type"],
+        pagination: {
+          start: startRow,
+          limit: count,
+        },
+      }; 
+
+       if (chartData.value.labels) {
+        // console.log("query3",query)
+        query.filters.system = {
+          $eq: chartData.value.labels[3]
+        }
+      }
+      
+      const customerExist = await getAllCustomerData(qs.stringify(query));
+      customerTotalPJOIS.value = customerExist.data.meta.pagination.total
+      // customerExist.value.data.data.forEach((element) => {
+      //   let attrObj = element.attributes;
+      //   attrSystem.value.push({
+      //     label: element.attributes.system,
+      //   });
+      // });
+      // console.log("attrSystem.value", attrSystem.value);
+      // console.log("customerExist", customerExist)
+      // console.log("count oneshop", customerExist.data.data.)
+    }
+
+    async function getCustomerULIMS(
+      startRow,
+      count,
+      filter,
+      sortBy,
+      descending
+    ) {
+
+      const query = {
+        filters: {},
+        populate: ["industry", "type"],
+        pagination: {
+          start: startRow,
+          limit: count,
+        },
+      }; 
+       if (chartData.value.labels) {
+        // console.log("query1",query)
+        query.filters.system = {
+          $eq: chartData.value.labels[1]
+        }
+      }
+      
+      const customerExist = await getAllCustomerData(qs.stringify(query));
+      customerTotalULIMS.value = customerExist.data.meta.pagination.total
+      // customerExist.value.data.data.forEach((element) => {
+      //   let attrObj = element.attributes;
+      //   attrSystem.value.push({
+      //     label: element.attributes.system,
+      //   });
+      // });
+      // console.log("attrSystem.value", attrSystem.value);
+      // console.log("customerExist", customerExist)
+      // console.log("count oneshop", customerExist.data.data.)
     }
     onMounted(() => {
-      getCustomer();
+      getCustomerOneShop();
+      getCustomerAIOS();
+      getCustomerPJOIS();
+      getCustomerULIMS();
     });
     return {
       attrSystem,
       customerExist,
-      getCustomer,
-      chartData: {
-        labels: ["OneShop", "ULIMS", "AIOS", "PJOIS"],
-        datasets: [
-          {
-            backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],
-            data: [40, 20, 80, 10],
-          },
-        ],
-      },
+      chartData,
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false,
       },
+      model,
+      getCustomerOneShop,
+      getCustomerAIOS,
+      getCustomerPJOIS,
+      getCustomerULIMS,
+      
+      customerTotalOneShop,
+      customerTotalAIOS,
+      customerTotalPJOIS,
+      customerTotalULIMS,
     };
   },
 };

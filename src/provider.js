@@ -17,6 +17,7 @@ const loginApiAios = async function () {
 
 const getCustomerDataaios = function (query) {
   return aiosapi.get("users?" + query).then(function (users) {
+    // console.log("test", users.data)
     return users.data;
   });
 };
@@ -219,6 +220,11 @@ export const getTransactionDataAllaios = (query) => {
 
 export const getAllCustomerDataOneShop = () => {
   return getCustomerDataOneShop();
+};
+
+// pjois
+export const getAllCustomerPhysmet = (query) => {
+  return getCustomerDataPhysmet(query);
 };
 
 export const postCustomerData = (customer) => {
