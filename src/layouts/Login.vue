@@ -1,9 +1,9 @@
 <template>
   <q-layout class="bg-grey-2">
-    <q-footer bordered class="bg-secondary">
-      <q-toolbar class="toolbar bg-secondary">
+    <q-footer bordered class="bg-primary">
+      <q-toolbar class="toolbar bg-primary">
         <q-toolbar-title class="text-body1 text-center">
-          © 2022 CDMS, MIRDC-PMD
+          © 2023 CDMS, MIRDC-PMD
         </q-toolbar-title>
       </q-toolbar>
     </q-footer>
@@ -11,7 +11,11 @@
     <q-page-container>
       <q-page class="flex flex-center">
         <q-card bordered class="my-login no-shadow q-pa-lg">
-          <q-form @submit="onSubmit" class="q-gutter-md" ref="loginRefForm">
+          <q-form
+            @submit.prevent="onSubmit"
+            class="q-gutter-md"
+            ref="loginRefForm"
+          >
             <q-item class="q-mt-md">
               <q-item-section avatar>
                 <img src="~assets/logo.png" width="190" />
@@ -60,7 +64,7 @@
 
             <q-card-actions class="justify">
               <!-- <q-btn color="primary" @click="manageAccount" no-caps flat>Manage Account</q-btn> -->
-              <q-btn class="full-width" @click="onSubmit" color="secondary"
+              <q-btn class="full-width" type="submit" color="primary"
                 >Login</q-btn
               >
             </q-card-actions>
@@ -133,7 +137,7 @@ export default defineComponent({
     async function loginToSSOClient() {
       $q.loading.show({
         spinner: QSpinnerGears,
-        spinnerColor: "secondary",
+        spinnerColor: "primary",
         messageColor: "black",
         message: "Checking Credentials",
       });
