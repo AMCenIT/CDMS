@@ -18,26 +18,37 @@ const api = axios.create({
 }); //Production
 // const aiosapi = axios.create({ baseURL: "https://aios-mirdc.ap.ngrok.io" }); // Production
 const aiosapi = axios.create({
-  baseURL: "http://10.10.120.126:3030/",
-  // baseURL: "https://aios-mirdc.ap.ngrok.io/",
+  // baseURL: "http://10.10.120.126:3030",
+  baseURL: "https://aios-mirdc.ap.ngrok.io/",
   headers: {
     "Content-Type": "application/json",
   },
 }); // Production
+
 // const aiosapi = axios.create({ baseURL: "http://10.10.120.25:81" }); //  statging
 const oneshop = axios.create({ baseURL: "http://10.10.120.32:3030" });
 
 aiosapi.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
+  // console.log("token", token);
   config.headers.Authorization = `Bearer ` + token;
 
   return config;
 });
 
+// aiosapi
+//   .get("/transactions")
+//   .then((response) => {
+//     console.log("response.data", response.data);
+//   })
+//   .catch((error) => {
+//     console.error(error);
+//   });
+
 const physmet = axios
   .request({
     method: "get",
-    baseURL: "http://10.10.120.32:1337/api/job-orders",
+    baseURL: "http://10.10.120.32:1337/api/job-orders?populate=*",
     headers: {
       Authorization:
         "Bearer" +
@@ -46,6 +57,7 @@ const physmet = axios
   })
   .then((response) => {
     // console.log('erick response data', response.data)
+    return response.data;
   });
 
 export default boot(({ app }) => {

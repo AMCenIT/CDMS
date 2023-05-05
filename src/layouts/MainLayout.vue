@@ -1,8 +1,8 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-9">
+  <q-layout view="hHh lpR fFf" class="bg-grey-2">
     <q-header
       elevated
-      class="bg-white text-secondary q-py-xs bg-blue-grey-7"
+      class="bg-white text-secondary q-py-xs bg-white"
       height-hint="58"
     >
       <q-toolbar>
@@ -14,9 +14,10 @@
           aria-label="Menu"
           icon="menu"
           size="1.4em"
+          color="primary"
         />
 
-        <img
+        <!-- <img
           src="~assets/cdms-logo.png"
           width="200"
           v-if="!$q.screen.lt.md"
@@ -31,18 +32,36 @@
           clickable
           @click="$router.push('/MainLayout/Home')"
           style="cursor: pointer"
+        /> -->
+        <img
+          src="~assets/logo.png"
+          width="100"
+          @click="link = 'home' && $router.push('/MainLayout/Home')"
+          style="cursor: pointer"
         />
-        <img src="~assets/logo.png" width="190" />
-        <q-space />
+        <div>
+          <span class="text-black text-h5"
+            >Customer Database Management System</span
+          >
+        </div>
 
+        <q-space />
         <q-space />
 
         <div class="q-gutter-sm row items-center no-wrap">
-          <q-btn flat round icon="notifications" @click="showNotif">
+          <!-- <pre>{{ physmetCustomer }}</pre> -->
+          <q-btn
+            flat
+            round
+            color="primary"
+            icon="notifications"
+            @click="showNotif"
+          >
             <q-badge
               v-if="
-                physmetCustomer +
-                oneShopCustomerTotal +
+                // physmetCustomer +
+                physmetTotal.length +
+                oneShopCustomer.total +
                 aiosUser.total -
                 segregateDupli
               "
@@ -50,45 +69,87 @@
               color="red"
               rounded
               >{{
-                physmetCustomer +
-                oneShopCustomerTotal +
+                // physmetCustomer +
+                physmetTotal.length +
+                oneShopCustomer.total +
                 aiosUser.total -
-                segregateDupli +
-                24
+                segregateDupli
               }}</q-badge
             >
           </q-btn>
-          <q-btn
-            round
-            flat
-            color="secondary"
-            size="1.4em"
-            icon="account_circle"
-          >
+          <q-btn round flat>
+            <q-avatar color="primary" text-color="white">{{
+              firstname.charAt(0) + lastname.charAt(0)
+            }}</q-avatar>
+            <q-tooltip>Account</q-tooltip>
+            <q-menu>
+              <q-card
+                class="flat no-shadow"
+                style="width: 360px; height: 325px"
+              >
+                <div class="row justify-center q-mt-md">
+                  <q-avatar size="80px" color="primary" text-color="white">{{
+                    firstname.charAt(0) + lastname.charAt(0)
+                  }}</q-avatar>
+                </div>
+
+                <q-card-section class="text-center q-pt-none q-mt-sm">
+                  <div class="text-h6">{{ displayName }}</div>
+                  <div class="text-grey">
+                    <span class="text-weight-medium">Employee ID:</span>
+                    {{ userid }}
+                  </div>
+                </q-card-section>
+
+                <q-card-section class="text-center q-gutter-sm q-mb-sm">
+                  <q-btn
+                    @click="manageAccount"
+                    label="Manage your account"
+                    icon="settings"
+                    :color="$q.dark.isActive ? 'white' : 'dark'"
+                    no-caps
+                    rounded
+                    outline
+                  /><br />
+                </q-card-section>
+
+                <q-separator />
+
+                <q-card-actions @click="logout" class="justify-center q-pa-md">
+                  <q-btn icon="exit_to_app" no-caps> Sign out </q-btn>
+                </q-card-actions>
+                <q-separator class="q-mb-xl" />
+              </q-card>
+            </q-menu>
+          </q-btn>
+          <!-- <q-btn round flat color="primary" size="1.4em">
+            <q-avatar color="primary" text-color="white">{{
+              firstname.charAt(0) + lastname.charAt(0)
+            }}</q-avatar>
             <q-tooltip>Log out</q-tooltip>
             <q-menu
               transition-show="flip-right"
               transition-hide="flip-left"
-              class="bg-blue-grey-7"
+              class="bg-grey-2"
             >
               <q-list style="min-width: 100px">
                 <q-item clickable>
                   <q-item-section avatar>
-                    <q-avatar>
-                      <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-                    </q-avatar>
+                    <q-avatar color="primary" text-color="white">{{
+                      firstname.charAt(0) + lastname.charAt(0)
+                    }}</q-avatar>
                   </q-item-section>
-                  <q-item-section class="text-secondary"
-                    >Profile</q-item-section
+                  <q-item-section class="text-black"
+                    >{{ firstname }} {{ lastname }}</q-item-section
                   >
                 </q-item>
                 <q-separator />
-                <q-item clickable @click="logout" class="bg-secondary">
+                <q-item clickable @click="logout" class="bg-primary">
                   <q-item-section class="text-white">LOG OUT</q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
-          </q-btn>
+          </q-btn> -->
         </div>
       </q-toolbar>
     </q-header>
@@ -96,49 +157,63 @@
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
+      :mini="miniState"
+      @mouseover="miniState = false"
+      @mouseout="miniState = true"
       bordered
-      content-class="bg-secondary"
+      content-class="bg-primary"
       :width="240"
-      class="bg-blue-grey-7"
+      class="bg-grey-2"
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item class="my-card bg-secondary text-white">
+          <q-item
+            class="my-card text-white"
+            clickable
+            active-class="my-menu-link"
+            exact
+          >
             <q-tooltip>Account</q-tooltip>
 
             <q-item-section avatar>
-              <q-avatar>
-                <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-              </q-avatar>
+              <q-avatar color="primary" text-color="white">{{
+                firstname.charAt(0) + lastname.charAt(0)
+              }}</q-avatar>
             </q-item-section>
 
             <q-item-section>
-              <div class="text-subtitle2">
-                User: {{ displayName }}
-                <br />
-                Employee Id: {{ userid }}
+              <div class="text-subtitle2 text-black">
+                {{ displayName }}
               </div>
             </q-item-section>
           </q-item>
 
-          <q-item @click="$router.push('/MainLayout/Home')" v-ripple clickable>
+          <q-item
+            @click="link = 'home' && $router.push('/MainLayout/Home')"
+            v-ripple
+            clickable
+            :to="'/MainLayout/Home'"
+            active-class="my-menu-link"
+          >
             <q-item-section avatar>
-              <q-icon color="secondary" name="home" />
+              <q-icon name="home" />
             </q-item-section>
             <q-item-section>
               <q-item-label>Home</q-item-label>
             </q-item-section>
           </q-item>
           <q-item
-            @click="$router.push('/MainLayout/Customer')"
+            @click="$router.push('/MainLayout/Dashboard')"
             v-ripple
             clickable
+            :to="'/MainLayout/Dashboard'"
+            active-class="my-menu-link"
           >
             <q-item-section avatar>
-              <q-icon color="secondary" name="dashboard" />
+              <q-icon name="dashboard" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>Customer Infomation</q-item-label>
+              <q-item-label>Dashboard</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -146,34 +221,68 @@
             @click="$router.push('/MainLayout/crudCustomer')"
             v-ripple
             clickable
+            :to="'/MainLayout/crudCustomer'"
+            active-class="my-menu-link"
           >
             <q-item-section avatar>
-              <q-icon color="secondary" name="edit" />
+              <q-icon name="people" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>CRUD Customer </q-item-label>
+              <q-item-label>Customers </q-item-label>
             </q-item-section>
           </q-item>
           <q-item
             @click="$router.push('/MainLayout/Transaction')"
             v-ripple
             clickable
+            :to="'/MainLayout/Transaction'"
+            active-class="my-menu-link"
           >
             <q-item-section avatar>
-              <q-icon color="secondary" name="work" />
+              <q-icon name="sort" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>Customer per System</q-item-label>
+              <q-item-label>Transactions</q-item-label>
             </q-item-section>
           </q-item>
 
-          <q-separator />
+          <q-item
+            @click="$router.push('/MainLayout/DownloadableFiles')"
+            v-ripple
+            clickable
+            :to="'/MainLayout/DownloadableFiles'"
+            active-class="my-menu-link"
+          >
+            <q-item-section avatar>
+              <q-icon name="print" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Downloadable File</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            @click="$router.push('/MainLayout/GenerateReport')"
+            v-ripple
+            clickable
+            :to="'/MainLayout/GenerateReport'"
+            active-class="my-menu-link"
+          >
+            <q-item-section avatar>
+              <q-icon name="summarize" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Generate Report</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <!-- <q-separator />
           <q-expansion-item
             expand-separator
             icon="library_books"
-            label="Others"
-          >
-            <!-- <q-item
+            label="Others" -->
+          <!-- > -->
+          <!-- <q-item
               v-ripple
               clickable
               @click="$router.push('/MainLayout/Home')"
@@ -199,20 +308,22 @@
               </q-item-section>
             </q-item> -->
 
-            <q-item
+          <!-- <q-item
+              @click="$router.push('/MainLayout/GenerateReport')"
               v-ripple
               clickable
-              @click="$router.push('/MainLayout/Home')"
+              :to="'/MainLayout/GenerateReport'"
+              active-class="my-menu-link"
             >
               <q-item-section avatar>
-                <q-icon color="grey" name="summarize" />
+                <q-icon name="summarize" />
               </q-item-section>
               <q-item-section>
-                <q-item-label>Report</q-item-label>
+                <q-item-label>Generate Report</q-item-label>
               </q-item-section>
-            </q-item>
+            </q-item> -->
 
-            <q-item
+          <!-- <q-item
               v-ripple
               clickable
               @click="$router.push('/MainLayout/Home')"
@@ -223,8 +334,8 @@
               <q-item-section>
                 <q-item-label>Logs</q-item-label>
               </q-item-section>
-            </q-item>
-          </q-expansion-item>
+            </q-item> -->
+          <!-- </q-expansion-item> -->
         </q-list>
       </q-scroll-area>
     </q-drawer>
@@ -272,6 +383,7 @@ import {
   getAllCustomerData,
   getCustomerDataAllaios,
   getALLOneShopRequestDataOneShop,
+  pjoisTotalFilters,
 } from "src/provider.js";
 import axios from "axios";
 
@@ -281,6 +393,8 @@ export default {
     const qs = require("qs");
     const router = useRouter();
     const displayName = ref("");
+    const firstname = ref("");
+    const lastname = ref("");
     const userid = ref("");
     const leftDrawerOpen = ref(false);
 
@@ -290,8 +404,12 @@ export default {
     const segregateDupli = ref([]);
     const aiosUser = ref([]);
 
-    const startDate = ref("2022/02/01");
-    const endDate = ref("2019/02/01");
+    const physmetTotal = ref(0);
+
+    const miniState = ref(true);
+
+    // const startDate = ref("2022/02/01");
+    // const endDate = ref("2019/02/01");
 
     const physmetCustomer = ref("");
 
@@ -306,11 +424,15 @@ export default {
 
     userid.value = userLoggedin.value.username;
     displayName.value = userLoggedin.value.displayName;
+    firstname.value = userLoggedin.value.firstname;
+    lastname.value = userLoggedin.value.lastname;
 
     const loginStatus = computed(() => store.getters["auth/getLoginApiStatus"]);
     const loginStatusAIOS = computed(
       () => store.getters["aiosauth/getLoginApiStatus"]
     );
+
+    const link = ref("home");
 
     async function logout() {
       await store.dispatch("auth/logout");
@@ -321,7 +443,7 @@ export default {
 
     async function getAllCustomerOneShop() {
       oneShopCustomer.value = await getAllCustomerDataOneShop();
-      // console.log("oneShopCustomer.value", oneShopCustomer.value);
+      // console.log("oneShopCustomer.value", oneShopCustomer.value.total);
       oneShopCustomerTotal.value = oneShopCustomer.value.data
         .map(function (val, idx, arr) {
           for (var i = 0; i < idx; i++) {
@@ -358,8 +480,20 @@ export default {
     async function getAllCustomerSynced() {
       allCustomer.value = await getAllCustomerData();
       segregateDupli.value = allCustomer.value.data.meta.pagination.total;
-      console.log("allCustomer", segregateDupli.value);
+      // console.log("allCustomer", segregateDupli.value);
       // console.log("allCustomer.value", allCustomer.value.data.data);
+    }
+
+    async function postTransaction() {
+      axios
+        .request({
+          method: "post",
+          baseURL: "http://10.10.120.19:1336/api/postTransaction",
+        })
+        .then((response) => {
+          const postedData = response.data;
+          console.log("postedData", postedData)
+        });
     }
 
     async function getPhysmetCustomerSynced() {
@@ -377,6 +511,12 @@ export default {
           physmetCustomer.value = response.data.meta.pagination.total;
           // console.log('erick response data', physmetCustomer.value)
         });
+    }
+
+    async function filterPhysmetTotal() {
+      physmetTotal.value = await pjoisTotalFilters();
+      // console.log("physmetTotal.value", physmetTotal.value.length);
+      // return physmetTotal.value
     }
 
     // async function getStartEndDate() {
@@ -407,9 +547,13 @@ export default {
       getAllCustomerSynced();
       getAiosUser();
       getPhysmetCustomerSynced();
+      filterPhysmetTotal();
+      postTransaction();
     });
 
     return {
+      postTransaction,
+      filterPhysmetTotal,
       physmetCustomer,
       getPhysmetCustomerSynced,
       userid,
@@ -429,18 +573,29 @@ export default {
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
-      startDate,
-      endDate,
+      // startDate,
+      // endDate,
+      physmetTotal,
+
+      link,
+      miniState,
+      firstname,
+      lastname,
 
       // getStartEndDate,
 
       showNotif() {
-        console.log("oneShopCustomerTotal.value", oneShopCustomerTotal.value);
+        // console.log(
+        //   "All Customer",
+        //   allCustomer.value.data.meta.pagination.total
+        // );
         if (
-          oneShopCustomerTotal.value +
+          physmetTotal.value.length +
+          oneShopCustomer.value.total +
           aiosUser.value.total -
-          segregateDupli.value +
-          physmetCustomer.value
+          segregateDupli.value
+
+          // physmetCustomer.value
         ) {
           $q.notify({
             message:
@@ -456,17 +611,40 @@ export default {
           });
         }
       },
+      manageAccount() {
+        // router.push("/MainLayout/resetPassword", "", "width=1000,height=600");
+      },
+      // axios
+      //     .post("http://10.10.120.19:1336/api/auth/local", {
+      //       identifier: "3489",
+      //       password: "123456",
+      //     })
+      //     .then((response) => {
+      //       // Handle success.
+      //       console.log("Well done!");
+      //       console.log("User profile", response.data.user);
+      //       console.log("User token", response.data.jwt);
+      //     })
+      //     .catch((error) => {
+      //       // Handle error.
+      //       console.log("An error occurred:", error.response);
+      //     });
+
       background:
-        "The Centralized Customer Database is a web-based and access-controlled information system that supports automated tasks, data reusability, data sharing, and a more productive workflow without disruption not only for MIRDC but also to the customers as well.",
+        "The Customer Database Management System is a web-based and access-controlled information system that supports automated tasks, data reusability, data sharing, and a more productive workflow without disruption not only for MIRDC but also to the customers as well.",
       introduction:
-        "The Management Information System (MIS) unit of the Planning and Management Division (PMD) has been actively engaged in designing and maintaining information systems that are valuable to the Center. Indeed, MIS monitors the Center's Information Systems Strategic Plan (ISSP), whose primary purpose is to improve the Center's operational excellence through acquiring ICT infrastructure and to enhance the existing system or application.Centralized Customer Database (CCD) is a database that is located, stored, and maintained in a single location, thus it is easier to access and coordinate data and will help the team (PMD) to spend less time cleaning up or preparing the data and more time focusing on its essential growth and success.",
+        "The Management Information System (MIS) unit of the Planning and Management Division (PMD) has been actively engaged in designing and maintaining information systems that are valuable to the Center. Indeed, MIS monitors the Center's Information Systems Strategic Plan (ISSP), whose primary purpose is to improve the Center's operational excellence through acquiring ICT infrastructure and to enhance the existing system or application. Customer Database Management System (CDMS) is a database that is located, stored, and maintained in a single location, thus it is easier to access and coordinate data and will help the team (PMD) to spend less time cleaning up or preparing the data and more time focusing on its essential growth and success.",
     };
   },
 };
 </script>
 
-<style lang="sass">
-.YL
+<style>
+.tab-active {
+  background-color: #26a69a;
+  color: #000;
+}
+/* .YL
   &__toolbar-input-container
     min-width: 100px
     width: 55%
@@ -484,4 +662,13 @@ export default {
     font-size: .75rem
     &:hover
       color: #000
+
+      .my-menu-link
+  color: white
+  background: #F2C037 */
+.my-menu-link {
+  color: white;
+  background: #1976d2;
+  /* background: #26A69A; */
+}
 </style>

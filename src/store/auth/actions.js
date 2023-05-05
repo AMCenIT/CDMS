@@ -21,7 +21,7 @@ export async function setLoggedIn({ commit }, flag) {
 }
 
 export async function loginApi({ commit }, payload) {
-  console.log(payload);
+  // console.log(payload);
   const response = await api.post("/api/auth/local", payload).catch((err) => {
     // console.log(response);
   });

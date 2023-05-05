@@ -8,6 +8,8 @@ export function setUserProfile(state, data) {
   // console.log("data mutations", data.role)
   const userProfile = {
     id: data.id,
+    firstname: data.firstname,
+    lastname: data.lastname,
     displayName: data.displayName,
     username: data.username,
     // role: data.role,

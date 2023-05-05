@@ -1,5 +1,6 @@
-import { api, aiosapi, oneshop } from "boot/axios";
+import { api, aiosapi, oneshop, physmet } from "boot/axios";
 import { getTransitionRawChildren } from "vue";
+import axios from "axios";
 
 const loginApiAios = async function () {
   await aiosapi
@@ -36,24 +37,45 @@ const getTransactionDataaios = function (query) {
     return transactions.data;
   });
 };
+
+// const getJobOrderDataPhysmet = function (query) {
+//   return axios
+//     .request({
+//       method: "get",
+//       baseURL: "http://10.10.120.32:1337/api/job-orders?" + query,
+//       headers: {
+//         Authorization:
+//           "Bearer" +
+//           "1a951bf72526c8dcf2abb2143458e612442d4814f1ddd9d6d2c58af3ead67d769c5115c63da7a633a1d8d6cfaaaa9fe4adfb62dafda09fc5cc083bea930035197c24f013c905ae5ca0884376fc0153cc419565f4209f27ae7c983fd340a6d963a371f5a1236f517ec038c633d0cad60754cefbb62247fe98b1d6bb1b40fc5f8a",
+//       },
+//     })
+//     .then(function (response) {
+//       // console.log("request.data", request.data);
+//       return response.data;
+//     });
+//   // console.log("physmet", physmet);
+// };
+
 // Oneshop
 const getCustomerDataOneShop = function () {
   return oneshop.get("customers?$limit=1000").then(function (customers) {
+    // console.log("customer.data", customers.data);
     return customers.data;
   });
 };
 
 // Oneshop request
 const getRequestDataOneShop = function (query) {
-  console.log("ONEEEe", query);
+  // console.log("ONEEEe", query);
   return oneshop.get("requests?" + query).then(function (request) {
+    // console.log("request.data", request.data);
     return request.data;
   });
 };
 // Oneshop via table
 const getCustomerDataOneShopTable = function (query) {
   return oneshop.get("customers?" + query).then(function (customers) {
-    console.log("oneshop query ", customers.data);
+    // console.log("oneshop query ", customers.data);
     return customers.data;
   });
 };
@@ -61,6 +83,13 @@ const getCustomerDataOneShopTable = function (query) {
 const getCustomerData = function (query) {
   return api.get("/api/customers?" + query).then(function (customers) {
     return customers;
+  });
+};
+
+const getJobOrderDataPhysmet = function (query) {
+  return physmet.then(function (request) {
+    console.log("requestasdq", request);
+    return request;
   });
 };
 
@@ -139,6 +168,42 @@ const existCompany = function (company) {
     });
 };
 
+const existCustomerID = function (customerid) {
+  return api
+    .get(
+      "http://10.10.120.19:1336/api/customers?filters[customer_id][$eq]" +
+        customerid
+    )
+    .then(function (response) {
+      // console.log("test", response);
+      return response.data.data;
+    });
+};
+
+const existTsrNo = function (tsrNo) {
+  return api
+    .get(
+      "http://10.10.120.19:1336/api/transactions?filters[tsrNo][$eq]" + tsrNo
+    )
+    .then(function (response) {
+      // console.log("test", response);
+      return response.data.data;
+    });
+};
+
+const existId = function (id) {
+  return api
+    .get(
+      "http://10.10.120.19:1336/api/transactions?filters[customer_id][$eq]" +
+        id +
+        "&pagination[page]=1&pagination[pageSize]=500"
+    )
+    .then(function (response) {
+      // console.log("test", response);
+      return response.data.data;
+    });
+};
+
 // For existed email
 const existEmail = function (email) {
   return api
@@ -153,6 +218,15 @@ const existEmail = function (email) {
 const systemFilter = function (system) {
   return api
     .get("http://10.10.120.19:1336/api/customers?filters[system][$eq]" + system)
+    .then(function (response) {
+      // console.log("system data", response);
+      return response.data.data;
+    });
+};
+
+const pjoisTotalFilter = function (system) {
+  return api
+    .get("http://10.10.120.19:1336/api/customers?filters[system][$eq]=PJOIS")
     .then(function (response) {
       // console.log("system data", response);
       return response.data.data;
@@ -185,6 +259,10 @@ export const systemsFilter = (query) => {
   return systemFilter(query);
 };
 
+export const pjoisTotalFilters = (query) => {
+  return pjoisTotalFilter(query);
+};
+
 export const searchAllData = (query) => {
   return searchAll(query);
 };
@@ -197,6 +275,18 @@ export const validateCompany = (query) => {
   return existCompany(query);
 };
 
+export const validateCustomerID = (query) => {
+  return existCustomerID(query);
+};
+
+export const validateTsrNo = (query) => {
+  return existTsrNo(query);
+};
+
+export const validateId = (query) => {
+  return existId(query);
+};
+
 export const validateEmails = (query) => {
   return existEmail(query);
 };
@@ -206,6 +296,7 @@ export const loginAios = () => {
 };
 
 export const getAllCustomerData = (query) => {
+  // console.log("query", query);
   return getCustomerData(query);
 };
 // aios Customer
@@ -218,6 +309,12 @@ export const getTransactionDataAllaios = (query) => {
   return getTransactionDataaios(query);
 };
 
+// physmet transactions
+export const getJobOrderPhysmet = (query) => {
+  // console.log("queryqueryqueryqueryqueryquery", query);
+  return getJobOrderDataPhysmet(query);
+};
+
 export const getAllCustomerDataOneShop = () => {
   return getCustomerDataOneShop();
 };
@@ -228,6 +325,7 @@ export const getAllCustomerPhysmet = (query) => {
 };
 
 export const postCustomerData = (customer) => {
+  // console.log("customer", customer);
   return postCustomerDataApi(customer);
 };
 

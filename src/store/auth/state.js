@@ -4,7 +4,8 @@ export default function () {
     loginApiStatus: "",
     userProfile: {
       id: 0,
-      name: "",
+      firstname: "",
+      lastname: "",
       username: "",
       // role: "",
       email: "",

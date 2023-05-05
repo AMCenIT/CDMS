@@ -27,8 +27,15 @@ const routes = [
         },
       },
       {
-        path: "Customer",
-        component: () => import("pages/Customer.vue"),
+        path: "Dashboard",
+        component: () => import("pages/Dashboard.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "resetPassword",
+        component: () => import("pages/resetPassword.vue"),
         meta: {
           requiresAuth: true,
         },
@@ -43,6 +50,20 @@ const routes = [
       {
         path: "Home",
         component: () => import("layouts/Home.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "DownloadableFiles",
+        component: () => import("pages/DownloadableFiles.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "GenerateReport",
+        component: () => import("pages/GenerateReport.vue"),
         meta: {
           requiresAuth: true,
         },
